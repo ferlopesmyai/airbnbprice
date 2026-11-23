@@ -134,7 +134,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 <div class="pp">
   <header id="top">
     <div class="hero"><span class="hphoto" data-draw="s-photo" data-source="bylisting"></span><h1>Your pricing plan</h1></div>
-    <p class="meta">Windsor Island · prices checked <span data-draw="s-date" data-source="summary" data-field="scrape_date" data-row="0">—</span> · next 45 days</p>
+    <p class="meta">Windsor Island · prices checked <span data-draw="s-date" data-source="summary" data-field="scrape_date" data-row="0">—</span> · next <span data-draw="s-horizon" data-source="summary" data-field="nights" data-row="0">—</span> days</p>
     <p class="lede" data-read lang="en" data-draw="s-lede" data-source="summary">—</p>
     <div class="chips" data-draw="s-chips" data-source="summary"></div>
     <div class="status" data-draw="s-status" data-source="status"></div>
@@ -150,7 +150,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <div class="tile"><span class="tl">You vs. peers</span><span class="big" data-draw="k-gap" data-source="summary" data-field="gap_pct" data-row="0">—</span><span class="cmp">Same nights, per night</span></div>
     <div class="tile"><span class="tl">Your average</span><span class="big" data-draw="k-me" data-source="summary" data-field="my_avg" data-row="0">—</span><span class="cmp">Peers <span data-draw="k-peer" data-source="summary" data-field="peer_avg" data-row="0">—</span></span></div>
     <div class="tile"><span class="tl">Your open nights</span><span class="big" data-draw="k-open" data-source="summary" data-field="my_open" data-row="0">—</span><span class="cmp">Peers <span data-draw="k-popen" data-source="summary" data-field="peer_open" data-row="0">—</span> on average</span></div>
-    <div class="tile"><span class="tl">Peers booked</span><span class="big" data-draw="k-pbook" data-source="summary" data-field="peer_booked_pct" data-row="0">—</span><span class="cmp">Of their next 45 nights</span></div>
+    <div class="tile"><span class="tl">Peers booked</span><span class="big" data-draw="k-pbook" data-source="summary" data-field="peer_booked_pct" data-row="0">—</span><span class="cmp">Of their next <span data-draw="k-horizon" data-source="summary" data-field="nights" data-row="0">—</span> nights</span></div>
   </section>
 
   <section id="by-date">
@@ -182,7 +182,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
   <details class="notes" id="notes">
     <summary>How this works</summary>
     <ul>
-      <li>Every day the price of each house is checked for every check-in date in the next 45 days, for 2 adults, and kept. Price per night is the Airbnb total with all fees, before taxes, divided by the nights quoted (usually the minimum stay). A night no stay can start on, because of a minimum stay or a booking right after it, takes the per-night price of the stay that covers it.</li>
+      <li>Every day the price of each house is checked for every check-in date in the next 3 months (as far as the Apify scan reaches), for 2 adults, and kept. Price per night is the Airbnb total with all fees, before taxes, divided by the nights quoted (usually the minimum stay). A night no stay can start on, because of a minimum stay or a booking right after it, takes the per-night price of the stay that covers it.</li>
       <li>When a night that was open gets booked, the last price seen for it is kept and used as its likely booking price. These fill in as the daily checks pile up.</li>
       <li>Calls: <b>Reduce</b> when you are more than 10% above peers while they still have room, or above them with a week or less to go. <b>Increase</b> when peers are mostly booked and you are at or below their price. Otherwise <b>Keep</b>. Suggested prices are rounded to $5.</li>
       <li>Peers leave out "1221AB (2nd listing)", the same house as "1221 Ab", and "Themed villa (Julie)", whose calendar is closed.</li>
@@ -335,7 +335,7 @@ dash.calc('bylisting', {
 
 dash.calc('status', {
   title: 'Data used',
-  description: 'The latest daily run: when it finished, which source the prices came from, and how many of the 45 days that source covered.',
+  description: 'The latest daily run: when it finished, which source the prices came from, and how many of the days that source covered.',
   inputs: ['runs'],
   fn: (runs) => {
     const r = runs.slice().sort((a, b) => (a.scrape_date < b.scrape_date ? -1 : 1)).pop();
@@ -362,7 +362,8 @@ dash.calc('summary', {
       nights_compared: both.length,
       gaps: gaps.length, reduce: cnt('reduce'), keep: cnt('keep'), increase: cnt('increase'),
       my_open: bydate.filter((d) => d.me_open).length,
-      peer_open: peers.length ? Math.round(mean(peers.map((r) => (100 - r.booked_pct) * 0.45))) : null,
+      nights: bydate.length,
+      peer_open: peers.length ? Math.round(mean(peers.map((r) => ((100 - r.booked_pct) / 100) * bydate.length))) : null,
       peer_booked_pct: slots ? Math.round((bk / slots) * 100) : null,
       my_booked_pct: meRow ? meRow.booked_pct : null
     }];
@@ -384,7 +385,7 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 
 txt('s-date', (r) => fmtDay(P(r.scrape_date)));
 txt('s-lede', (r) => {
-  if (!r.gaps) return 'Your house has no open nights in the next 45 days.';
+  if (!r.gaps) return 'Your house has no open nights in the next ' + r.nights + ' days.';
   const parts = [];
   if (r.reduce) parts.push(r.reduce + (r.reduce === 1 ? ' gap needs' : ' gaps need') + ' a lower price');
   if (r.increase) parts.push(r.increase + ' can go up');
@@ -426,6 +427,8 @@ txt('k-gap', (r) => signed(r.gap_pct));
 txt('k-me', (r) => (r.my_avg == null ? '—' : usd(r.my_avg)));
 txt('k-peer', (r) => (r.peer_avg == null ? '—' : usd(r.peer_avg)));
 txt('k-open', (r) => String(r.my_open));
+txt('s-horizon', (r) => String(r.nights));
+txt('k-horizon', (r) => String(r.nights));
 txt('k-popen', (r) => String(r.peer_open));
 txt('k-pbook', (r) => (r.peer_booked_pct == null ? '—' : r.peer_booked_pct + '%'));
 
@@ -434,7 +437,7 @@ dash.draw('gap-cards', (box) => {
   const d = dash.data('gaps'); box.replaceChildren();
   if (d.status === 'error') { box.appendChild(el('div', 'empty', 'The gaps could not be worked out from the data.')); return; }
   if (d.status !== 'ok' || !d.data) return;
-  if (!d.data.length) { box.appendChild(el('div', 'empty', 'No open nights in the next 45 days. Nothing to change.')); return; }
+  if (!d.data.length) { box.appendChild(el('div', 'empty', 'No open nights in the period checked. Nothing to change.')); return; }
   const bd = dash.data('bydate'); const nightsBy = Object.fromEntries((bd.data || []).map((r) => [r.night, r]));
   for (const g of d.data) {
     const card = el('article', 'card a-' + g.action); card.dataset.key = g.first_night;
