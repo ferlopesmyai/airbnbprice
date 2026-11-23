@@ -60,7 +60,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 </head>
 <body>
 <style>
-.pp{display:flex;flex-direction:column;gap:28px;font-family:var(--font-anthropic-sans);color:var(--color-fg);max-width:1100px;margin:0 auto;-webkit-text-size-adjust:100%}
+.pp{--you:#2f5fd0;display:flex;flex-direction:column;gap:28px;font-family:var(--font-anthropic-sans);color:var(--color-fg);max-width:1100px;margin:0 auto;-webkit-text-size-adjust:100%}
 .pp h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:clamp(1.6rem,6vw,2.2rem);line-height:1.15;margin:0;text-wrap:balance}
 .pp h2{font-size:1.1rem;font-weight:var(--cds-font-weight-medium);margin:0 0 4px}
 .pp .hero{display:flex;align-items:center;gap:14px}
@@ -72,7 +72,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .pp .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:.9rem;font-weight:var(--cds-font-weight-medium);border:1px solid var(--color-border-line);background:var(--color-panel)}
 .pp .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
-.pp .a-reduce{--a:var(--color-warn)}.pp .a-increase{--a:var(--color-ok)}.pp .a-keep{--a:var(--color-fg-muted)}
+.pp .a-reduce{--a:var(--color-warn)}.pp .a-increase{--a:var(--color-ok)}.pp .a-keep{--a:var(--you)}
 .pp .dot{background:var(--a)}
 .pp .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
 .pp .card{background:var(--color-panel);border:1px solid var(--color-border-line);border-left:4px solid var(--a);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -103,7 +103,9 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp .chart svg text{fill:var(--cds-text-secondary);font-size:11px}
 .pp .tip{position:absolute;pointer-events:none;background:var(--cds-surface-popover);border:1px solid var(--cds-border);box-shadow:var(--cds-shadow-popover);border-radius:8px;padding:6px 9px;font-size:.8rem;color:var(--color-fg);white-space:nowrap;z-index:2;line-height:1.45}
 .pp .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--color-fg-muted);margin-bottom:6px}
-.pp .sw-open{border:1.5px solid var(--cds-chart-muted);box-sizing:border-box;background:transparent}
+.pp .sw-me{background:var(--you)}
+.pp .sw-gap{opacity:.4}
+.pp .lg-sep{color:var(--color-fg-muted);opacity:.6}
 .pp .sw{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .pp table{border-collapse:collapse;width:100%;font-size:.85rem;font-variant-numeric:tabular-nums}
 .pp th,.pp td{padding:8px 6px;border-bottom:1px solid var(--color-border-line);text-align:right}
@@ -115,8 +117,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 @media (min-width:600px){.pp .thumb{width:72px;height:48px}}
 .pp .hname{overflow-wrap:anywhere;line-height:1.3}
 .pp .rank td{vertical-align:middle}
-.pp tr.me td{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--color-ok) 10%,transparent)}
-.pp .up{color:var(--color-warn)}.pp .down{color:var(--color-ok)}
+.pp tr.me td{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--you) 12%,transparent)}
 .pp .wide{display:none}
 @media (min-width:600px){.pp .wide{display:table-cell}}
 .pp .bk{color:var(--color-fg-muted);font-style:italic}
@@ -147,15 +148,17 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 
   <section id="by-date">
     <h2>Night by night</h2>
-    <p class="sub">Your price against the typical peer. Shaded columns are your open gaps. Where a peer has been booked since an earlier check, its last price counts, because that is roughly what it sold for.</p>
-    <div class="legend"><span><i class="sw sw-me"></i>Your house</span><span><i class="sw" style="background:var(--cds-chart-muted)"></i>Peer median</span><span><i class="sw" style="background:var(--cds-chart-muted);opacity:.35"></i>Peer range</span></div>
+    <p class="sub">Your price against the typical peer. Shaded columns are nights your house is still open, colored by the call on its card. Where a peer has been booked since an earlier check, its last price counts, because that is roughly what it sold for.</p>
+    <div class="legend"><span><i class="sw sw-me"></i>Your price</span><span><i class="sw" style="background:var(--cds-chart-muted)"></i>Peer median</span><span><i class="sw" style="background:var(--cds-chart-muted);opacity:.35"></i>Peer range</span></div>
+    <div class="legend"><span class="lg-sep">Your open nights:</span><span><i class="sw sw-gap" style="background:var(--color-warn)"></i>Reduce</span><span><i class="sw sw-gap" style="background:var(--you)"></i>Keep</span><span><i class="sw sw-gap" style="background:var(--color-ok)"></i>Increase</span></div>
     <div class="chart" data-draw="date-chart" data-source="bydate"></div>
   </section>
 
   <section id="booked">
     <h2>How booked the houses are</h2>
-    <p class="sub">Each bar is how many of the 7 peer houses are booked that night. The strip underneath shows your house: filled when booked, hollow when still open.</p>
-    <div class="legend"><span><i class="sw" style="background:var(--cds-chart-muted)"></i>Peers booked</span><span><i class="sw sw-me"></i>You booked</span><span><i class="sw sw-open"></i>You open</span></div>
+    <p class="sub">Each bar is how many of the 7 peer houses are booked that night. Shaded columns are nights your house is still open, in the same colors as above; unshaded nights are booked.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--cds-chart-muted)"></i>Peers booked</span></div>
+    <div class="legend"><span class="lg-sep">Your open nights:</span><span><i class="sw sw-gap" style="background:var(--color-warn)"></i>Reduce</span><span><i class="sw sw-gap" style="background:var(--you)"></i>Keep</span><span><i class="sw sw-gap" style="background:var(--color-ok)"></i>Increase</span></div>
     <div class="chart short" data-draw="booked-chart" data-source="bydate"></div>
   </section>
 
@@ -287,7 +290,9 @@ dash.calc('gaps', {
         action = 'increase'; target = r5(my * 1.07);
         why = 'Demand is strong: ' + bookedTxt + ', and you are ' + (Math.abs(prem) < 0.01 ? 'level with' : pct(prem) + (prem > 0 ? ' above' : ' below')) + ' the typical peer.';
       } else {
-        why = 'You are ' + (Math.abs(prem) < 0.01 ? 'level with' : pct(prem) + (prem > 0 ? ' above' : ' below')) + ' the typical peer and ' + bookedTxt + '. Your price fits.';
+        why = prem > 0.05
+          ? 'You are ' + pct(prem) + ' above the typical peer, but ' + bookedTxt + ' and there is time left, so demand can carry your price for now. Watch it as the date gets closer.'
+          : 'You are ' + (Math.abs(prem) < 0.01 ? 'level with' : pct(prem) + (prem > 0 ? ' above' : ' below')) + ' the typical peer and ' + bookedTxt + '. Your price fits.';
       }
       if (action === 'keep' && my != null) target = my;
       return { first_night: first, last_night: lastN, checkout: addDays(lastN, 1), nights: n, days_ahead: lead,
@@ -354,6 +359,9 @@ const S = () => { const s = dash.data('summary'); return s.status === 'ok' && s.
 const txt = (name, f) => dash.draw(name, (el) => { const r = S(); el.textContent = r ? f(r) : '—'; });
 const signed = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + '%');
 const ACT = { reduce: 'Reduce', keep: 'Keep', increase: 'Increase' };
+const setYou = () => document.querySelectorAll('.pp').forEach((e) => { if (dash.colors && dash.colors[0]) e.style.setProperty('--you', dash.colors[0]); });
+const ACT_FILL = { reduce: 'var(--color-warn)', keep: 'var(--you)', increase: 'var(--color-ok)' };
+const gapActions = () => { const g = dash.data('gaps'); const m = {}; if (g.status === 'ok' && g.data) for (const r of g.data) for (let i = 0; i < r.nights; i++) m[addDays(r.first_night, i)] = r.action; return m; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
 txt('s-date', (r) => fmtDay(P(r.scrape_date)));
@@ -372,7 +380,7 @@ dash.draw('s-photo', (box) => {
   if (me && /^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(me.thumb || '')) { const im = el('img'); im.src = me.thumb; im.alt = 'Your house'; box.appendChild(im); }
 });
 dash.draw('s-chips', (box) => {
-  const r = S(); box.replaceChildren(); if (!r) return;
+  setYou(); const r = S(); box.replaceChildren(); if (!r) return;
   for (const a of ['reduce', 'keep', 'increase']) { if (!r[a]) continue; const c = el('span', 'chip a-' + a); c.append(el('i', 'dot'), document.createTextNode(r[a] + ' ' + ACT[a].toLowerCase())); box.appendChild(c); }
 });
 txt('k-gap', (r) => signed(r.gap_pct));
@@ -383,6 +391,7 @@ txt('k-popen', (r) => String(r.peer_open));
 txt('k-pbook', (r) => (r.peer_booked_pct == null ? '—' : r.peer_booked_pct + '%'));
 
 dash.draw('gap-cards', (box) => {
+  setYou();
   const d = dash.data('gaps'); box.replaceChildren();
   if (d.status === 'error') { box.appendChild(el('div', 'empty', 'The gaps could not be worked out from the data.')); return; }
   if (d.status !== 'ok' || !d.data) return;
@@ -434,7 +443,7 @@ const failText = (box, id) => { const s = dash.data(id).status; box.textContent 
 const axisStyle = (a) => a.call((g) => g.selectAll('.domain,line').style('stroke', 'var(--cds-chart-axis)'));
 
 dash.draw('date-chart', (box) => {
-  document.querySelectorAll('.sw-me').forEach((s) => { s.style.background = dash.colors[0]; });
+  setYou();
   const d = dash.data('bydate');
   if (d.status !== 'ok' || !d.data || !d.data.length) { failText(box, 'bydate'); return; }
   box.replaceChildren();
@@ -446,7 +455,8 @@ dash.draw('date-chart', (box) => {
   const cx = (r) => x(r.t) + dx / 2;
   const ymax = d3.max(rows, (r) => Math.max(r.mine_shown || 0, r.shown_max || 0)) || 1;
   const y = d3.scaleLinear().domain([0, ymax * 1.08]).nice().range([H - m.b, m.t]);
-  svg.append('g').selectAll('rect').data(rows.filter((r) => r.me_open)).join('rect').attr('x', (r) => x(r.t)).attr('width', dx).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', dash.colors[0]).style('opacity', 0.08);
+  const act = gapActions();
+  svg.append('g').selectAll('rect').data(rows.filter((r) => r.me_open)).join('rect').attr('x', (r) => x(r.t)).attr('width', dx).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', (r) => ACT_FILL[act[r.night]] || 'var(--you)').style('opacity', 0.14);
   svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(narrow ? 4 : 8).tickFormat(fmtDay).tickSizeOuter(0)).call(axisStyle);
   svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(narrow ? 4 : 5).tickFormat(usd).tickSize(-(W - m.l - m.r))).call((a) => a.select('.domain').remove()).call((a) => a.selectAll('line').style('stroke', 'var(--cds-chart-grid)'));
   svg.append('path').datum(rows).attr('d', d3.area().defined((r) => r.shown_min != null).x(cx).y0((r) => y(r.shown_min)).y1((r) => y(r.shown_max))).style('fill', 'var(--cds-chart-muted)').style('opacity', 0.3);
@@ -457,39 +467,38 @@ dash.draw('date-chart', (box) => {
   const show = (ev) => {
     const [px] = d3.pointer(ev, svg.node()); const i = Math.max(0, Math.min(rows.length - 1, Math.floor((px - m.l) / dx))); const r = rows[i];
     hair.attr('x1', cx(r)).attr('x2', cx(r)).style('opacity', 1);
-    tip(box, [fmtDow(r.t), 'You: ' + (r.mine_shown != null ? usd(r.mine_shown) + (r.mine == null ? ' (part of a longer stay)' : '') : r.me_open ? 'open, no price' : 'booked'), 'Peer median: ' + (r.peer_median_shown != null ? usd(r.peer_median_shown) : '–'), r.peers_booked + ' of ' + r.peers + ' peers booked'], ev);
+    tip(box, [fmtDow(r.t) + (act[r.night] ? ' · ' + ACT[act[r.night]] : ''), 'You: ' + (r.mine_shown != null ? usd(r.mine_shown) + (r.mine == null ? ' (part of a longer stay)' : '') : r.me_open ? 'open, no price' : 'booked'), 'Peer median: ' + (r.peer_median_shown != null ? usd(r.peer_median_shown) : '–'), r.peers_booked + ' of ' + r.peers + ' peers booked'], ev);
   };
   svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
     .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
 });
 
 dash.draw('booked-chart', (box) => {
-  document.querySelectorAll('.sw-me').forEach((s) => { s.style.background = dash.colors[0]; });
+  setYou();
   const d = dash.data('bydate');
   if (d.status !== 'ok' || !d.data || !d.data.length) { failText(box, 'bydate'); return; }
   box.replaceChildren();
+  const act = gapActions();
   const rows = d.data.map((r) => ({ ...r, t: P(r.night) }));
-  const W = Math.max(280, box.clientWidth), narrow = W < 500, H = narrow ? 200 : 230, strip = 12, m = { t: 10, r: 8, b: 24 + strip + 8, l: narrow ? 28 : 34 };
-  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Number of peer houses booked each night, with whether your house is booked');
+  const W = Math.max(280, box.clientWidth), narrow = W < 500, H = narrow ? 190 : 220, m = { t: 10, r: 8, b: 24, l: narrow ? 28 : 34 };
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Number of peer houses booked each night; shaded nights are ones your house is still open');
   const x = d3.scaleUtc().domain([rows[0].t, new Date(+rows[rows.length - 1].t + 864e5)]).range([m.l, W - m.r]);
   const dx = x(new Date(+rows[0].t + 864e5)) - x(rows[0].t), gap = Math.min(2, dx * 0.2);
   const maxP = d3.max(rows, (r) => r.peers) || 1;
   const y = d3.scaleLinear().domain([0, maxP]).range([H - m.b, m.t]);
+  svg.append('g').selectAll('rect').data(rows.filter((r) => r.me_open)).join('rect').attr('x', (r) => x(r.t)).attr('width', dx).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', (r) => ACT_FILL[act[r.night]] || 'var(--you)').style('opacity', 0.14);
   svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(Math.min(maxP, 4)).tickFormat(d3.format('d')).tickSize(-(W - m.l - m.r))).call((a) => a.select('.domain').remove()).call((a) => a.selectAll('line').style('stroke', 'var(--cds-chart-grid)'));
   svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.t) + gap / 2).attr('width', Math.max(1, dx - gap))
     .attr('y', (r) => y(r.peers_booked)).attr('height', (r) => y(0) - y(r.peers_booked)).attr('rx', Math.min(2, dx / 4)).style('fill', 'var(--cds-chart-muted)');
-  const sy = H - m.b + 6;
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.t) + gap / 2 + 0.75).attr('width', Math.max(1, dx - gap - 1.5)).attr('y', sy).attr('height', strip).attr('rx', 2)
-    .style('fill', (r) => (r.me_open ? 'transparent' : dash.colors[0])).style('stroke', (r) => (r.me_open ? 'var(--cds-chart-muted)' : 'none')).style('stroke-width', 1.2);
-  svg.append('g').attr('transform', `translate(0,${sy + strip + 2})`).call(d3.axisBottom(x).ticks(narrow ? 4 : 8).tickFormat(fmtDay).tickSize(0).tickPadding(6)).call((a) => a.select('.domain').remove());
-  const hi = svg.append('rect').attr('y', m.t).attr('height', sy + strip - m.t).attr('width', dx).style('fill', 'var(--cds-chart-reference)').style('opacity', 0).style('pointer-events', 'none');
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(narrow ? 4 : 8).tickFormat(fmtDay).tickSizeOuter(0)).call(axisStyle);
+  const hair = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('opacity', 0);
   const show = (ev) => {
     const [px] = d3.pointer(ev, svg.node()); const i = Math.max(0, Math.min(rows.length - 1, Math.floor((px - m.l) / dx))); const r = rows[i];
-    hi.attr('x', x(r.t)).style('opacity', 0.12);
-    tip(box, [fmtDow(r.t), r.peers_booked + ' of ' + r.peers + ' peers booked', 'Your house: ' + (r.me_open ? 'open' : 'booked')], ev);
+    hair.attr('x1', x(r.t) + dx / 2).attr('x2', x(r.t) + dx / 2).style('opacity', 1);
+    tip(box, [fmtDow(r.t), r.peers_booked + ' of ' + r.peers + ' peers booked', 'Your house: ' + (r.me_open ? 'open' + (act[r.night] ? ' (' + ACT[act[r.night]].toLowerCase() + ')' : '') : 'booked')], ev);
   };
-  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', sy + strip - m.t).style('fill', 'transparent')
-    .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hi.style('opacity', 0); untip(box); });
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+    .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
 });
 
 dash.draw('rank-rows', (tb) => {
@@ -503,7 +512,7 @@ dash.draw('rank-rows', (tb) => {
     const nm = el('span', 'hname');
     if (/^https:\/\//.test(r.url || '')) { const a = el('a', null, r.listing); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; nm.appendChild(a); } else nm.textContent = r.listing;
     wrap.appendChild(nm); td0.appendChild(wrap);
-    const vs = el('td', r.mine !== '1' && r.vs_me_pct != null ? (r.vs_me_pct < 0 ? 'down' : r.vs_me_pct > 0 ? 'up' : null) : null,
+    const vs = el('td', null,
       r.mine === '1' ? '–' : r.vs_me_pct == null ? 'no shared nights' : signed(r.vs_me_pct));
     tr.append(td0, el('td', null, r.avg_per_night != null ? usd(r.avg_per_night) : 'fully booked'), vs, el('td', 'wide', r.booked_pct != null ? r.booked_pct + '%' : '–'));
     tb.appendChild(tr);
