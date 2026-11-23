@@ -48,7 +48,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
   const blank = (r) => { for (const k in r) if (r[k] === '') r[k] = null; return r; };
   document.addEventListener('DOMContentLoaded', () => {
     drawAll();
-    Promise.all(['prices', 'availability', 'listings'].map((n) =>
+    Promise.all(['prices', 'availability', 'listings', 'runs'].map((n) =>
       fetch('data/' + n + '.csv', { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error(n); return r.text(); })
         .then((t) => { D[n] = { status: 'ok', data: d3.csvParse(t.replace(/\r/g, ''), blank) }; })
         .catch(() => { D[n] = { status: 'error' }; }))).then(run);
@@ -66,6 +66,12 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp .hero{display:flex;align-items:center;gap:14px}
 .pp .hphoto img{width:64px;height:64px;border-radius:14px;object-fit:cover;display:block}
 @media (min-width:600px){.pp .hphoto img{width:84px;height:84px}}
+.pp .status{margin-top:14px;padding:10px 12px;border-radius:10px;border:1px solid var(--color-border-line);background:var(--color-panel);font-size:.85rem;line-height:1.45;display:flex;gap:10px;align-items:flex-start}
+.pp .status:empty{display:none}
+.pp .status .dot{margin-top:5px}
+.pp .status b{font-weight:var(--cds-font-weight-medium)}
+.pp .status .st-sub{color:var(--color-fg-muted)}
+.pp .st-ok{--a:var(--color-ok)}.pp .st-old{--a:var(--color-warn)}
 .pp .meta{color:var(--color-fg-muted);font-size:.9rem;margin:6px 0 0}
 .pp .lede{font-size:1.05rem;line-height:1.5;margin:14px 0 0;max-width:62ch}
 .pp .sub{color:var(--color-fg-muted);font-size:.875rem;margin:0 0 12px;line-height:1.45;max-width:66ch}
@@ -131,6 +137,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <p class="meta">Windsor Island · prices checked <span data-draw="s-date" data-source="summary" data-field="scrape_date" data-row="0">—</span> · next 45 days</p>
     <p class="lede" data-read lang="en" data-draw="s-lede" data-source="summary">—</p>
     <div class="chips" data-draw="s-chips" data-source="summary"></div>
+    <div class="status" data-draw="s-status" data-source="status"></div>
   </header>
 
   <section id="gaps">
@@ -326,6 +333,17 @@ dash.calc('bylisting', {
   }
 });
 
+dash.calc('status', {
+  title: 'Data used',
+  description: 'The latest daily run: when it finished, which source the prices came from, and how many of the 45 days that source covered.',
+  inputs: ['runs'],
+  fn: (runs) => {
+    const r = runs.slice().sort((a, b) => (a.scrape_date < b.scrape_date ? -1 : 1)).pop();
+    return r ? [{ scrape_date: r.scrape_date, updated_at: r.updated_at, source: r.source, apify_scraped_at: r.apify_scraped_at || null,
+      apify_days: num(r.apify_days), days: num(r.days), note: r.note || '' }] : [];
+  }
+});
+
 dash.calc('summary', {
   title: 'Headline figures',
   description: 'Counts of reduce, keep and increase calls, your premium, averages and booking levels from the latest check.',
@@ -378,6 +396,27 @@ dash.draw('s-photo', (box) => {
   const d = dash.data('bylisting'); box.replaceChildren();
   const me = d.status === 'ok' && d.data ? d.data.find((r) => r.mine === '1') : null;
   if (me && /^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(me.thumb || '')) { const im = el('img'); im.src = me.thumb; im.alt = 'Your house'; box.appendChild(im); }
+});
+dash.draw('s-status', (box) => {
+  const d = dash.data('status'); box.replaceChildren();
+  const r = d.status === 'ok' && d.data && d.data[0]; if (!r) return;
+  const et = (iso, withDay) => { const t = new Date(iso); if (isNaN(t)) return '';
+    const day = t.toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' });
+    const today = new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' });
+    const yest = new Date(Date.now() - 864e5).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' });
+    const time = t.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+    return (day === today ? 'today' : day === yest ? 'yesterday' : day) + (withDay === false ? '' : ', ') + time; };
+  const age = (Date.now() - Date.parse(r.updated_at)) / 36e5;
+  const fresh = age < 30;
+  box.className = 'status ' + (fresh ? 'st-ok' : 'st-old');
+  const txt = el('div');
+  txt.appendChild(el('b', null, (fresh ? 'Updated ' : 'Not updated since ') + et(r.updated_at) + ' ET'));
+  let src = 'Prices from ' + (r.source || 'unknown source');
+  if (r.apify_scraped_at) src += ' (Apify scan ' + et(r.apify_scraped_at) + ')';
+  if (r.days) src += ' · ' + (r.apify_days != null && r.source !== 'Browser check' ? r.apify_days + ' of ' + r.days + ' days from Apify' : r.days + ' days');
+  txt.appendChild(el('div', 'st-sub', src + (r.note ? '. ' + r.note + '.' : '')));
+  if (!fresh) txt.appendChild(el('div', 'st-sub', 'The daily update is late. The calls below may be out of date.'));
+  box.append(el('i', 'dot'), txt);
 });
 dash.draw('s-chips', (box) => {
   setYou(); const r = S(); box.replaceChildren(); if (!r) return;
