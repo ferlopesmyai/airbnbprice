@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pricing Plan</title>
+<meta name="description" content="Daily Airbnb price check for my Windsor Island house against nearby peers, with a reduce, keep or increase call for each open gap.">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pricing">
+<meta name="theme-color" content="#f5f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1f1e1d" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="thumbs/1709445962698523002.jpg">
+<style>
+:root{--font-anthropic-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--font-anthropic-serif:"New York",Georgia,"Times New Roman",serif;
+--bg:#f5f4ef;--color-fg:#1f1e1d;--color-fg-muted:#6b6a65;--color-panel:#fff;--color-border-line:#e3e1da;--color-ok:#2f7d4a;--color-warn:#b4581a;
+--cds-font-weight-medium:600;--cds-chart-muted:#8a8a85;--cds-chart-axis:#c9c7c0;--cds-chart-grid:#ecebe6;--cds-chart-reference:#9a988f;--cds-text-secondary:#6b6a65;
+--cds-surface-popover:#fff;--cds-border:#d9d7cf;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.12);--series-1:#2f5fd0}
+@media (prefers-color-scheme: dark){:root{--bg:#1f1e1d;--color-fg:#ecebe6;--color-fg-muted:#a8a69f;--color-panel:#2a2927;--color-border-line:#3b3a37;--color-ok:#62b67e;--color-warn:#e39b52;
+--cds-chart-muted:#8f8d86;--cds-chart-axis:#55534e;--cds-chart-grid:#33322f;--cds-chart-reference:#7d7b74;--cds-text-secondary:#a8a69f;--cds-surface-popover:#33322f;--cds-border:#4a4945;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.5);--series-1:#7ea6ff}}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+</style>
+<script src="d3.min.js"></script>
+<script>
+// Minimal stand-in for the dashboard runtime: loads the CSVs, runs the calcs in order, draws.
+(function () {
+  const D = {}, C = [], W = [];
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  window.dash = {
+    colors: [],
+    calc: (id, o) => C.push([id, o]),
+    draw: (n, f) => W.push([n, f]),
+    data: (id) => D[id] || { status: 'loading' }
+  };
+  const drawAll = () => { dash.colors = [css('--series-1')]; for (const [n, f] of W) document.querySelectorAll('[data-draw="' + n + '"]').forEach((e) => { try { f(e); } catch (err) { console.error(n, err); } }); };
+  const run = () => {
+    for (let pass = 0; pass < 20 && C.some(([id]) => !D[id]); pass++)
+      for (const [id, o] of C) {
+        if (D[id]) continue;
+        const ins = o.inputs.map((i) => D[i]);
+        if (ins.some((x) => !x)) continue;
+        if (ins.some((x) => x.status !== 'ok')) { D[id] = { status: 'error' }; continue; }
+        try { D[id] = { status: 'ok', data: o.fn(...ins.map((x) => x.data)) }; } catch (err) { console.error(id, err); D[id] = { status: 'error' }; }
+      }
+    drawAll();
+  };
+  const blank = (r) => { for (const k in r) if (r[k] === '') r[k] = null; return r; };
+  document.addEventListener('DOMContentLoaded', () => {
+    drawAll();
+    Promise.all(['prices', 'availability', 'listings'].map((n) =>
+      fetch('data/' + n + '.csv', { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error(n); return r.text(); })
+        .then((t) => { D[n] = { status: 'ok', data: d3.csvParse(t.replace(/\r/g, ''), blank) }; })
+        .catch(() => { D[n] = { status: 'error' }; }))).then(run);
+    let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawAll, 150); });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+  });
+})();
+</script>
+</head>
+<body>
+<style>
+.pp{display:flex;flex-direction:column;gap:28px;font-family:var(--font-anthropic-sans);color:var(--color-fg);max-width:1100px;margin:0 auto;-webkit-text-size-adjust:100%}
+.pp h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:clamp(1.6rem,6vw,2.2rem);line-height:1.15;margin:0;text-wrap:balance}
+.pp h2{font-size:1.1rem;font-weight:var(--cds-font-weight-medium);margin:0 0 4px}
+.pp .hero{display:flex;align-items:center;gap:14px}
+.pp .hphoto img{width:64px;height:64px;border-radius:14px;object-fit:cover;display:block}
+@media (min-width:600px){.pp .hphoto img{width:84px;height:84px}}
+.pp .meta{color:var(--color-fg-muted);font-size:.9rem;margin:6px 0 0}
+.pp .lede{font-size:1.05rem;line-height:1.5;margin:14px 0 0;max-width:62ch}
+.pp .sub{color:var(--color-fg-muted);font-size:.875rem;margin:0 0 12px;line-height:1.45;max-width:66ch}
+.pp .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pp .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:.9rem;font-weight:var(--cds-font-weight-medium);border:1px solid var(--color-border-line);background:var(--color-panel)}
+.pp .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.pp .a-reduce{--a:var(--color-warn)}.pp .a-increase{--a:var(--color-ok)}.pp .a-keep{--a:var(--color-fg-muted)}
+.pp .dot{background:var(--a)}
+.pp .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+.pp .card{background:var(--color-panel);border:1px solid var(--color-border-line);border-left:4px solid var(--a);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pp .ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pp .dates{font-size:1.15rem;font-weight:var(--cds-font-weight-medium);line-height:1.25}
+.pp .when{color:var(--color-fg-muted);font-size:.85rem;margin-top:2px}
+.pp .pill{flex:none;padding:5px 12px;border-radius:999px;font-size:.85rem;font-weight:var(--cds-font-weight-medium);color:var(--a);background:color-mix(in srgb,var(--a) 14%,transparent);border:1px solid color-mix(in srgb,var(--a) 40%,transparent);text-transform:uppercase;letter-spacing:.04em}
+.pp .prices{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.pp .now{font-size:1rem;color:var(--color-fg-muted)}
+.pp .now s{text-decoration-thickness:1px}
+.pp .to{font-family:var(--font-anthropic-serif);font-size:1.7rem;line-height:1}
+.pp .chg{font-size:.85rem;font-weight:var(--cds-font-weight-medium);color:var(--a)}
+.pp .per{font-size:.8rem;color:var(--color-fg-muted)}
+.pp .peers{font-size:.875rem;font-variant-numeric:tabular-nums}
+.pp .why{font-size:.9rem;line-height:1.45;margin:0}
+.pp details.nights summary{cursor:pointer;font-size:.85rem;color:var(--color-fg-muted);padding:4px 0;min-height:32px;display:flex;align-items:center}
+.pp details.nights table{margin-top:6px}
+.pp .empty{padding:18px;border:1px dashed var(--color-border-line);border-radius:12px;color:var(--color-fg-muted);font-size:.9rem}
+.pp .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:720px){.pp .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pp .tile{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.pp .tl{font-size:.8rem;color:var(--color-fg-muted)}
+.pp .big{font-family:var(--font-anthropic-serif);font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.pp .cmp{font-size:.8rem;color:var(--color-fg-muted);font-variant-numeric:tabular-nums}
+.pp .chart{position:relative;min-height:260px;width:100%;touch-action:pan-y}
+.pp .chart.short{min-height:180px}
+.pp .chart svg{display:block;overflow:visible}
+.pp .chart svg text{fill:var(--cds-text-secondary);font-size:11px}
+.pp .tip{position:absolute;pointer-events:none;background:var(--cds-surface-popover);border:1px solid var(--cds-border);box-shadow:var(--cds-shadow-popover);border-radius:8px;padding:6px 9px;font-size:.8rem;color:var(--color-fg);white-space:nowrap;z-index:2;line-height:1.45}
+.pp .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--color-fg-muted);margin-bottom:6px}
+.pp .sw{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.pp table{border-collapse:collapse;width:100%;font-size:.85rem;font-variant-numeric:tabular-nums}
+.pp th,.pp td{padding:8px 6px;border-bottom:1px solid var(--color-border-line);text-align:right}
+.pp th:first-child,.pp td:first-child{text-align:left}
+.pp th{color:var(--color-fg-muted);font-weight:var(--cds-font-weight-medium);font-size:.8rem}
+.pp td a{color:inherit}
+.pp .house{display:flex;align-items:center;gap:10px;min-width:0}
+.pp .thumb{width:56px;height:40px;border-radius:6px;object-fit:cover;flex:none;background:var(--color-border-line)}
+@media (min-width:600px){.pp .thumb{width:72px;height:48px}}
+.pp .hname{overflow-wrap:anywhere;line-height:1.3}
+.pp .rank td{vertical-align:middle}
+.pp tr.me td{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--color-ok) 10%,transparent)}
+.pp .up{color:var(--color-warn)}.pp .down{color:var(--color-ok)}
+.pp .wide{display:none}
+@media (min-width:600px){.pp .wide{display:table-cell}}
+.pp .bk{color:var(--color-fg-muted);font-style:italic}
+.pp details.notes{font-size:.85rem;color:var(--color-fg-muted);line-height:1.5}
+.pp details.notes summary{cursor:pointer;color:var(--color-fg);min-height:36px;display:flex;align-items:center}
+.pp details.notes li{margin-bottom:6px}
+</style>
+<div class="pp">
+  <header id="top">
+    <div class="hero"><span class="hphoto" data-draw="s-photo" data-source="bylisting"></span><h1>Your pricing plan</h1></div>
+    <p class="meta">Windsor Island · prices checked <span data-draw="s-date" data-source="summary" data-field="scrape_date" data-row="0">—</span> · next 45 days</p>
+    <p class="lede" data-read lang="en" data-draw="s-lede" data-source="summary">—</p>
+    <div class="chips" data-draw="s-chips" data-source="summary"></div>
+  </header>
+
+  <section id="gaps">
+    <h2>What to do with each open gap</h2>
+    <p class="sub">Each card is a run of nights your house is still open. Prices are what guests see per night, fees included, before taxes.</p>
+    <div class="cards" data-draw="gap-cards" data-source="gaps"></div>
+  </section>
+
+  <section class="tiles" id="kpis">
+    <div class="tile"><span class="tl">You vs. peers</span><span class="big" data-draw="k-gap" data-source="summary" data-field="gap_pct" data-row="0">—</span><span class="cmp">Same nights, per night</span></div>
+    <div class="tile"><span class="tl">Your average</span><span class="big" data-draw="k-me" data-source="summary" data-field="my_avg" data-row="0">—</span><span class="cmp">Peers <span data-draw="k-peer" data-source="summary" data-field="peer_avg" data-row="0">—</span></span></div>
+    <div class="tile"><span class="tl">Your open nights</span><span class="big" data-draw="k-open" data-source="summary" data-field="my_open" data-row="0">—</span><span class="cmp">Peers <span data-draw="k-popen" data-source="summary" data-field="peer_open" data-row="0">—</span> on average</span></div>
+    <div class="tile"><span class="tl">Peers booked</span><span class="big" data-draw="k-pbook" data-source="summary" data-field="peer_booked_pct" data-row="0">—</span><span class="cmp">Of their next 45 nights</span></div>
+  </section>
+
+  <section id="by-date">
+    <h2>Night by night</h2>
+    <p class="sub">Your price against the typical peer. Shaded columns are your open gaps. Where a peer has been booked since an earlier check, its last price counts, because that is roughly what it sold for.</p>
+    <div class="legend"><span><i class="sw sw-me"></i>Your house</span><span><i class="sw" style="background:var(--cds-chart-muted)"></i>Peer median</span><span><i class="sw" style="background:var(--cds-chart-muted);opacity:.35"></i>Peer range</span></div>
+    <div class="chart" data-draw="date-chart" data-source="bydate"></div>
+  </section>
+
+  <section id="ranking">
+    <h2>How each house compares</h2>
+    <p class="sub">"Vs. you" compares each house with yours on nights you both had open. A minus means cheaper than you.</p>
+    <table class="rank" data-source="bylisting" data-row-key="listing_id">
+      <thead><tr><th data-field="listing">House</th><th data-field="avg_per_night">Per night</th><th data-field="vs_me_pct">Vs. you</th><th class="wide" data-field="booked_pct">Booked</th></tr></thead>
+      <tbody data-draw="rank-rows"></tbody>
+    </table>
+  </section>
+
+
+  <details class="notes" id="notes">
+    <summary>How this works</summary>
+    <ul>
+      <li>Every day the price of each house is checked for every check-in date in the next 45 days, for 2 adults, and kept. Price per night is the Airbnb total with all fees, before taxes, divided by the nights quoted (usually the minimum stay).</li>
+      <li>When a night that was open gets booked, the last price seen for it is kept and used as its likely booking price. These fill in as the daily checks pile up.</li>
+      <li>Calls: <b>Reduce</b> when you are more than 10% above peers while they still have room, or above them with a week or less to go. <b>Increase</b> when peers are mostly booked and you are at or below their price. Otherwise <b>Keep</b>. Suggested prices are rounded to $5.</li>
+      <li>Peers leave out "1221AB (2nd listing)", the same house as "1221 Ab", and "Themed villa (Julie)", whose calendar is closed.</li>
+    </ul>
+  </details>
+</div>
+<script>
+const num = (v) => (v === null || v === undefined || v === '' ? null : +v);
+const med = (a) => { const s = a.filter((x) => x !== null && !isNaN(x)).sort((x, y) => x - y); if (!s.length) return null; const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const mean = (a) => { const s = a.filter((x) => x !== null && !isNaN(x)); return s.length ? s.reduce((p, c) => p + c, 0) / s.length : null; };
+const roleOf = (listings) => Object.fromEntries(listings.map((l) => [l.id, l.mine === '1' ? 'me' : l.peer_counted === '1' ? 'peer' : 'skip']));
+const addDays = (s, n) => new Date(Date.parse(s + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+const daysBetween = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5);
+const r5 = (v) => Math.round(v / 5) * 5;
+
+dash.calc('nights', {
+  title: 'Every house, every night, latest check',
+  description: 'One row per house and night in the latest check: open or not, today\'s price per night for a stay starting that night, and the last price seen before it was booked.',
+  inputs: ['prices', 'availability'],
+  fn: (prices, availability) => {
+    const last = availability.reduce((m, r) => (r.scrape_date > m ? r.scrape_date : m), '');
+    const cur = {}, seen = {};
+    for (const r of prices) {
+      if (r.status !== 'ok' || r.per_night_usd == null) continue;
+      const k = r.listing_id + '|' + r.checkin, v = num(r.per_night_usd);
+      if (r.scrape_date === last) cur[k] = v;
+      if (!seen[k] || r.scrape_date > seen[k].d) seen[k] = { v, d: r.scrape_date };
+    }
+    const wasOpen = new Set();
+    for (const a of availability) if (a.scrape_date < last && a.state === 'O') wasOpen.add(a.listing_id + '|' + a.night);
+    return availability.filter((a) => a.scrape_date === last).map((a) => {
+      const k = a.listing_id + '|' + a.night, open = a.state === 'O';
+      const booked_since = !open && wasOpen.has(k);
+      return { scrape_date: last, listing_id: a.listing_id, night: a.night, open: open ? 1 : 0, price: open ? cur[k] ?? null : null,
+        booked_since: booked_since ? 1 : 0, last_price: booked_since && seen[k] ? seen[k].v : null, last_seen: booked_since && seen[k] ? seen[k].d : null };
+    });
+  }
+});
+
+// Peer value for a night: today's price if open, else the last price seen before it was booked.
+const peerVal = (r) => (!r ? null : r.open ? r.price : r.booked_since ? r.last_price : null);
+
+dash.calc('bydate', {
+  title: 'You vs. peers by night',
+  description: 'For each night: your price, the peer median, cheapest and dearest (open peers at today\'s price, booked peers at their last price), and how many peers are booked.',
+  inputs: ['nights', 'listings'],
+  fn: (nights, listings) => {
+    const role = roleOf(listings), by = {};
+    for (const r of nights) {
+      if (role[r.listing_id] === 'skip') continue;
+      const c = (by[r.night] = by[r.night] || { mine: null, me_open: 0, vals: [], booked: 0, peers: 0 });
+      if (role[r.listing_id] === 'me') { c.mine = r.price; c.me_open = r.open; continue; }
+      c.peers++; if (!r.open) c.booked++;
+      const v = peerVal(r); if (v != null) c.vals.push(v);
+    }
+    return Object.keys(by).sort().map((n) => { const c = by[n]; return {
+      night: n, mine: c.mine, me_open: c.me_open, peer_median: med(c.vals),
+      peer_min: c.vals.length ? Math.min(...c.vals) : null, peer_max: c.vals.length ? Math.max(...c.vals) : null,
+      peers_priced: c.vals.length, peers_booked: c.booked, peers: c.peers }; });
+  }
+});
+
+dash.calc('gaps', {
+  title: 'Your open gaps and what to do',
+  description: 'Each run of open nights in your calendar, with your price, the peer price and booking level for those nights, and a reduce, keep or increase call with a suggested price.',
+  inputs: ['bydate', 'nights'],
+  fn: (bydate, nights) => {
+    const scrape = nights.length ? nights[0].scrape_date : null;
+    const runs = []; let cur = null;
+    for (const d of bydate) {
+      if (d.me_open) { if (!cur) { cur = []; runs.push(cur); } cur.push(d); } else cur = null;
+    }
+    return runs.map((run) => {
+      const first = run[0].night, lastN = run[run.length - 1].night, n = run.length;
+      const lead = daysBetween(scrape, first);
+      const my = mean(run.map((d) => d.mine));
+      const both = run.filter((d) => d.mine != null && d.peer_median != null);
+      const peer = both.length ? mean(both.map((d) => d.peer_median)) : mean(run.map((d) => d.peer_median));
+      const peerSlots = run.reduce((s, d) => s + d.peers, 0);
+      const booked = peerSlots ? run.reduce((s, d) => s + d.peers_booked, 0) / peerSlots : null;
+      const myCmp = both.length ? mean(both.map((d) => d.mine)) : my;
+      const prem = myCmp != null && peer ? myCmp / peer - 1 : null;
+      const pct = (x) => Math.round(Math.abs(x) * 100) + '%';
+      const bookedTxt = booked == null ? '' : Math.round(booked * 100) + '% of peer nights are booked';
+      const soon = lead <= 7 ? (lead <= 1 ? 'It starts ' + (lead <= 0 ? 'today' : 'tomorrow') + '.' : 'It starts in ' + lead + ' days.') : '';
+      let action = 'keep', target = my, why;
+      if (n === 1) {
+        action = 'reduce'; target = my != null ? r5(my * 0.85) : null;
+        why = 'A single open night rarely books on its own. Ask the manager to allow a 1-night stay here, or offer it about 15% off.';
+      } else if (my == null) {
+        action = 'reduce'; target = peer != null ? r5(peer) : null;
+        why = 'Airbnb shows no price for a stay in this gap, most likely because the minimum stay is longer than ' + n + ' nights. Shortening the minimum stay would let it book.';
+      } else if (prem == null) {
+        why = 'No peer prices to compare with on these nights yet. Keep for now.';
+      } else if (prem > 0.10 && (booked < 0.6 || lead <= 7)) {
+        action = 'reduce'; target = r5(peer * (lead <= 7 ? 1.0 : 1.03));
+        why = 'You are ' + pct(prem) + ' above the typical peer, and ' + (booked < 0.6 ? 'most peers still have these nights open.' : 'time is short.') + (soon ? ' ' + soon : '');
+      } else if (prem > 0.03 && lead <= 7 && booked < 0.8) {
+        action = 'reduce'; target = r5(peer);
+        why = soon + ' You are ' + pct(prem) + ' above the typical peer, and ' + bookedTxt + '. Matching them improves the odds of a last-minute booking.';
+      } else if (prem < -0.05 && booked >= 0.6) {
+        action = 'increase'; target = r5(Math.min(peer, my * 1.15));
+        why = 'You are ' + pct(prem) + ' below the typical peer while ' + bookedTxt + '. There is room to charge more.';
+      } else if (booked >= 0.8 && prem <= 0.05 && lead > 3) {
+        action = 'increase'; target = r5(my * 1.07);
+        why = 'Demand is strong: ' + bookedTxt + ', and you are ' + (Math.abs(prem) < 0.01 ? 'level with' : pct(prem) + (prem > 0 ? ' above' : ' below')) + ' the typical peer.';
+      } else {
+        why = 'You are ' + (Math.abs(prem) < 0.01 ? 'level with' : pct(prem) + (prem > 0 ? ' above' : ' below')) + ' the typical peer and ' + bookedTxt + '. Your price fits.';
+      }
+      if (action === 'keep' && my != null) target = my;
+      return { first_night: first, last_night: lastN, checkout: addDays(lastN, 1), nights: n, days_ahead: lead,
+        my_per_night: my != null ? Math.round(my) : null, peer_per_night: peer != null ? Math.round(peer) : null,
+        premium_pct: prem != null ? Math.round(prem * 100) : null, peers_booked_pct: booked != null ? Math.round(booked * 100) : null,
+        action, suggested_per_night: target != null ? Math.round(target) : null,
+        change_pct: target != null && my ? Math.round((target / my - 1) * 100) : null, reason: why.trim() };
+    });
+  }
+});
+
+dash.calc('bylisting', {
+  title: 'Each house vs. yours',
+  description: 'Average price per night for each house over its open nights in the latest check, how it compares with yours on shared nights, and how booked it is.',
+  inputs: ['nights', 'listings'],
+  fn: (nights, listings) => {
+    const me = listings.find((l) => l.mine === '1');
+    const q = {}, tot = {}, bk = {};
+    for (const r of nights) {
+      tot[r.listing_id] = (tot[r.listing_id] || 0) + 1; if (!r.open) bk[r.listing_id] = (bk[r.listing_id] || 0) + 1;
+      if (r.price != null) (q[r.listing_id] = q[r.listing_id] || {})[r.night] = r.price;
+    }
+    const mine = q[me.id] || {};
+    return listings.map((l) => {
+      const mq = q[l.id] || {}, vals = Object.values(mq), shared = Object.keys(mq).filter((d) => mine[d] != null);
+      return { listing_id: l.id, listing: l.listing, mine: l.mine, peer_counted: l.peer_counted, url: l.url, thumb: l.thumb || null,
+        avg_per_night: vals.length ? Math.round(mean(vals)) : null,
+        vs_me_pct: l.id === me.id ? 0 : shared.length ? Math.round((mean(shared.map((d) => mq[d] / mine[d])) - 1) * 100) : null,
+        nights_priced: vals.length, booked_pct: tot[l.id] ? Math.round(((bk[l.id] || 0) / tot[l.id]) * 100) : null };
+    });
+  }
+});
+
+dash.calc('summary', {
+  title: 'Headline figures',
+  description: 'Counts of reduce, keep and increase calls, your premium, averages and booking levels from the latest check.',
+  inputs: ['bydate', 'gaps', 'bylisting', 'nights'],
+  fn: (bydate, gaps, bylisting, nights) => {
+    const both = bydate.filter((r) => r.mine != null && r.peer_median != null);
+    const my = mean(both.map((r) => r.mine)), pm = mean(both.map((r) => r.peer_median));
+    const peers = bylisting.filter((r) => r.peer_counted === '1');
+    const meRow = bylisting.find((r) => r.mine === '1');
+    const slots = bydate.reduce((s, d) => s + d.peers, 0), bk = bydate.reduce((s, d) => s + d.peers_booked, 0);
+    const cnt = (a) => gaps.filter((g) => g.action === a).length;
+    return [{
+      scrape_date: nights.length ? nights[0].scrape_date : null,
+      gap_pct: my && pm ? Math.round((my / pm - 1) * 100) : null,
+      my_avg: my ? Math.round(my) : null, peer_avg: pm ? Math.round(pm) : null,
+      nights_compared: both.length,
+      gaps: gaps.length, reduce: cnt('reduce'), keep: cnt('keep'), increase: cnt('increase'),
+      my_open: bydate.filter((d) => d.me_open).length,
+      peer_open: peers.length ? Math.round(mean(peers.map((r) => (100 - r.booked_pct) * 0.45))) : null,
+      peer_booked_pct: slots ? Math.round((bk / slots) * 100) : null,
+      my_booked_pct: meRow ? meRow.booked_pct : null
+    }];
+  }
+});
+
+const usd = d3.format('$,.0f');
+const fmtDay = d3.utcFormat('%b %-d');
+const fmtDow = d3.utcFormat('%a %b %-d');
+const P = (s) => new Date(s + 'T00:00:00Z');
+const S = () => { const s = dash.data('summary'); return s.status === 'ok' && s.data && s.data[0] ? s.data[0] : null; };
+const txt = (name, f) => dash.draw(name, (el) => { const r = S(); el.textContent = r ? f(r) : '—'; });
+const signed = (v) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + '%');
+const ACT = { reduce: 'Reduce', keep: 'Keep', increase: 'Increase' };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+txt('s-date', (r) => fmtDay(P(r.scrape_date)));
+txt('s-lede', (r) => {
+  if (!r.gaps) return 'Your house has no open nights in the next 45 days.';
+  const parts = [];
+  if (r.reduce) parts.push(r.reduce + (r.reduce === 1 ? ' gap needs' : ' gaps need') + ' a lower price');
+  if (r.increase) parts.push(r.increase + ' can go up');
+  if (r.keep) parts.push(r.keep + (r.keep === 1 ? ' is' : ' are') + ' priced right');
+  const g = r.gap_pct == null ? '' : ' Overall you are ' + (r.gap_pct === 0 ? 'level with' : Math.abs(r.gap_pct) + '% ' + (r.gap_pct > 0 ? 'above' : 'below')) + ' the typical peer on the same nights.';
+  return 'You have ' + r.gaps + ' open ' + (r.gaps === 1 ? 'gap' : 'gaps') + ': ' + parts.join(', ') + '.' + g;
+});
+dash.draw('s-photo', (box) => {
+  const d = dash.data('bylisting'); box.replaceChildren();
+  const me = d.status === 'ok' && d.data ? d.data.find((r) => r.mine === '1') : null;
+  if (me && /^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(me.thumb || '')) { const im = el('img'); im.src = me.thumb; im.alt = 'Your house'; box.appendChild(im); }
+});
+dash.draw('s-chips', (box) => {
+  const r = S(); box.replaceChildren(); if (!r) return;
+  for (const a of ['reduce', 'keep', 'increase']) { if (!r[a]) continue; const c = el('span', 'chip a-' + a); c.append(el('i', 'dot'), document.createTextNode(r[a] + ' ' + ACT[a].toLowerCase())); box.appendChild(c); }
+});
+txt('k-gap', (r) => signed(r.gap_pct));
+txt('k-me', (r) => (r.my_avg == null ? '—' : usd(r.my_avg)));
+txt('k-peer', (r) => (r.peer_avg == null ? '—' : usd(r.peer_avg)));
+txt('k-open', (r) => String(r.my_open));
+txt('k-popen', (r) => String(r.peer_open));
+txt('k-pbook', (r) => (r.peer_booked_pct == null ? '—' : r.peer_booked_pct + '%'));
+
+dash.draw('gap-cards', (box) => {
+  const d = dash.data('gaps'); box.replaceChildren();
+  if (d.status === 'error') { box.appendChild(el('div', 'empty', 'The gaps could not be worked out from the data.')); return; }
+  if (d.status !== 'ok' || !d.data) return;
+  if (!d.data.length) { box.appendChild(el('div', 'empty', 'No open nights in the next 45 days. Nothing to change.')); return; }
+  const bd = dash.data('bydate'); const nightsBy = Object.fromEntries((bd.data || []).map((r) => [r.night, r]));
+  for (const g of d.data) {
+    const card = el('article', 'card a-' + g.action); card.dataset.key = g.first_night;
+    const top = el('div', 'ctop'); const left = el('div');
+    left.append(el('div', 'dates', fmtDay(P(g.first_night)) + ' – ' + fmtDay(P(g.checkout))),
+      el('div', 'when', g.nights + (g.nights === 1 ? ' night' : ' nights') + ' open · ' + (g.days_ahead <= 0 ? 'starts today' : g.days_ahead === 1 ? 'starts tomorrow' : 'starts in ' + g.days_ahead + ' days')));
+    top.append(left, el('span', 'pill', ACT[g.action])); card.appendChild(top);
+    const pr = el('div', 'prices');
+    if (g.my_per_night != null && g.suggested_per_night != null && g.action !== 'keep') {
+      const now = el('span', 'now'); const s = el('s', null, usd(g.my_per_night)); now.append(s);
+      pr.append(now, el('span', 'to', usd(g.suggested_per_night)), el('span', 'chg', signed(g.change_pct)), el('span', 'per', 'per night'));
+    } else if (g.my_per_night != null) {
+      pr.append(el('span', 'to', usd(g.my_per_night)), el('span', 'per', 'per night, keep as is'));
+    } else if (g.suggested_per_night != null) {
+      pr.append(el('span', 'now', 'No price shown now'), el('span', 'to', usd(g.suggested_per_night)), el('span', 'per', 'per night, to match peers'));
+    } else pr.append(el('span', 'now', 'No price shown for these dates'));
+    card.appendChild(pr);
+    card.appendChild(el('div', 'peers', 'Peers ' + (g.peer_per_night != null ? usd(g.peer_per_night) + ' per night' : 'no price yet') + (g.peers_booked_pct != null ? ' · ' + g.peers_booked_pct + '% booked' : '')));
+    card.appendChild(el('p', 'why', g.reason));
+    const det = el('details', 'nights'); det.appendChild(el('summary', null, 'Night by night'));
+    const t = el('table'); const hr = el('tr'); ['Night', 'You', 'Peers', 'Booked'].forEach((h) => hr.appendChild(el('th', null, h))); const th = el('thead'); th.appendChild(hr); t.appendChild(th);
+    const tb = el('tbody');
+    for (let i = 0; i < g.nights; i++) {
+      const n = new Date(P(g.first_night).getTime() + i * 864e5).toISOString().slice(0, 10); const r = nightsBy[n] || {};
+      const tr = el('tr'); tr.append(el('td', null, fmtDow(P(n))), el('td', r.mine == null ? 'bk' : null, r.mine == null ? 'no stay' : usd(r.mine)),
+        el('td', null, r.peer_median == null ? '–' : usd(r.peer_median)), el('td', null, r.peers ? r.peers_booked + ' of ' + r.peers : '–'));
+      tb.appendChild(tr);
+    }
+    t.appendChild(tb); det.appendChild(t); card.appendChild(det);
+    box.appendChild(card);
+  }
+});
+
+function tip(box, lines, ev) {
+  let t = box.querySelector('.tip'); if (!t) { t = el('div', 'tip'); box.appendChild(t); }
+  t.replaceChildren(...lines.map((l) => el('div', null, l))); t.hidden = false;
+  const b = box.getBoundingClientRect(); let x = ev.clientX - b.left + 12, y = ev.clientY - b.top - t.offsetHeight - 10;
+  if (x + t.offsetWidth > b.width) x = Math.max(0, ev.clientX - b.left - t.offsetWidth - 12);
+  if (y < 0) y = ev.clientY - b.top + 14;
+  t.style.left = x + 'px'; t.style.top = y + 'px';
+}
+const untip = (box) => { const t = box.querySelector('.tip'); if (t) t.hidden = true; };
+const failText = (box, id) => { const s = dash.data(id).status; box.textContent = s === 'error' ? 'This chart could not load its data.' : '—'; };
+const axisStyle = (a) => a.call((g) => g.selectAll('.domain,line').style('stroke', 'var(--cds-chart-axis)'));
+
+dash.draw('date-chart', (box) => {
+  document.querySelectorAll('.sw-me').forEach((s) => { s.style.background = dash.colors[0]; });
+  const d = dash.data('bydate');
+  if (d.status !== 'ok' || !d.data || !d.data.length) { failText(box, 'bydate'); return; }
+  box.replaceChildren();
+  const rows = d.data.map((r) => ({ ...r, t: P(r.night) }));
+  const W = Math.max(280, box.clientWidth), narrow = W < 500, H = narrow ? 240 : 290, m = { t: 10, r: 8, b: 24, l: narrow ? 40 : 48 };
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Your price per night against the peer median and range for each night');
+  const x = d3.scaleUtc().domain([rows[0].t, new Date(+rows[rows.length - 1].t + 864e5)]).range([m.l, W - m.r]);
+  const dx = (x(new Date(+rows[0].t + 864e5)) - x(rows[0].t));
+  const cx = (r) => x(r.t) + dx / 2;
+  const ymax = d3.max(rows, (r) => Math.max(r.mine || 0, r.peer_max || 0)) || 1;
+  const y = d3.scaleLinear().domain([0, ymax * 1.08]).nice().range([H - m.b, m.t]);
+  svg.append('g').selectAll('rect').data(rows.filter((r) => r.me_open)).join('rect').attr('x', (r) => x(r.t)).attr('width', dx).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', dash.colors[0]).style('opacity', 0.08);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(narrow ? 4 : 8).tickFormat(fmtDay).tickSizeOuter(0)).call(axisStyle);
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(narrow ? 4 : 5).tickFormat(usd).tickSize(-(W - m.l - m.r))).call((a) => a.select('.domain').remove()).call((a) => a.selectAll('line').style('stroke', 'var(--cds-chart-grid)'));
+  svg.append('path').datum(rows).attr('d', d3.area().defined((r) => r.peer_min != null).x(cx).y0((r) => y(r.peer_min)).y1((r) => y(r.peer_max))).style('fill', 'var(--cds-chart-muted)').style('opacity', 0.3);
+  svg.append('path').datum(rows).attr('d', d3.line().defined((r) => r.peer_median != null).x(cx).y((r) => y(r.peer_median))).style('fill', 'none').style('stroke', 'var(--cds-chart-muted)').style('stroke-width', 2);
+  svg.append('path').datum(rows).attr('d', d3.line().defined((r) => r.mine != null).x(cx).y((r) => y(r.mine))).style('fill', 'none').style('stroke', dash.colors[0]).style('stroke-width', 2.5);
+  svg.append('g').selectAll('circle').data(rows.filter((r) => r.mine != null)).join('circle').attr('cx', cx).attr('cy', (r) => y(r.mine)).attr('r', 3).style('fill', dash.colors[0]);
+  const hair = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('opacity', 0);
+  const show = (ev) => {
+    const [px] = d3.pointer(ev, svg.node()); const i = Math.max(0, Math.min(rows.length - 1, Math.floor((px - m.l) / dx))); const r = rows[i];
+    hair.attr('x1', cx(r)).attr('x2', cx(r)).style('opacity', 1);
+    tip(box, [fmtDow(r.t), 'You: ' + (r.mine != null ? usd(r.mine) : r.me_open ? 'open, no stay price' : 'booked'), 'Peer median: ' + (r.peer_median != null ? usd(r.peer_median) : '–'), r.peers_booked + ' of ' + r.peers + ' peers booked'], ev);
+  };
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+    .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
+});
+
+dash.draw('rank-rows', (tb) => {
+  const d = dash.data('bylisting'); tb.replaceChildren();
+  if (d.status !== 'ok' || !d.data) return;
+  const rows = d.data.filter((r) => r.mine === '1' || r.peer_counted === '1').sort((a, b) => (b.vs_me_pct ?? -999) - (a.vs_me_pct ?? -999));
+  for (const r of rows) {
+    const tr = el('tr', r.mine === '1' ? 'me' : null); tr.dataset.key = encodeURIComponent(r.listing_id);
+    const td0 = el('td'); const wrap = el('div', 'house');
+    if (/^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(r.thumb || '')) { const im = el('img', 'thumb'); im.src = r.thumb; im.alt = ''; im.loading = 'lazy'; wrap.appendChild(im); } else wrap.appendChild(el('span', 'thumb'));
+    const nm = el('span', 'hname');
+    if (/^https:\/\//.test(r.url || '')) { const a = el('a', null, r.listing); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; nm.appendChild(a); } else nm.textContent = r.listing;
+    wrap.appendChild(nm); td0.appendChild(wrap);
+    const vs = el('td', r.mine !== '1' && r.vs_me_pct != null ? (r.vs_me_pct < 0 ? 'down' : r.vs_me_pct > 0 ? 'up' : null) : null,
+      r.mine === '1' ? '–' : r.vs_me_pct == null ? 'no shared nights' : signed(r.vs_me_pct));
+    tr.append(td0, el('td', null, r.avg_per_night != null ? usd(r.avg_per_night) : 'fully booked'), vs, el('td', 'wide', r.booked_pct != null ? r.booked_pct + '%' : '–'));
+    tb.appendChild(tr);
+  }
+});
+
+</script>
+
+</body>
+</html>
