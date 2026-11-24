@@ -96,25 +96,28 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp .why{font-size:.9rem;line-height:1.45;margin:0}
 .pp details.nights summary{cursor:pointer;font-size:.85rem;color:var(--color-fg-muted);padding:4px 0;min-height:32px;display:flex;align-items:center}
 .pp details.nights table{margin-top:6px}
-.pp .ufilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.pp .ufilter:empty{display:none}
-.pp .ufilter button{font:inherit;font-size:.85rem;padding:7px 12px;min-height:36px;border-radius:999px;border:1px solid var(--color-border-line);background:var(--color-panel);color:var(--color-fg);cursor:pointer}
-.pp .ufilter button[aria-pressed="true"]{background:var(--color-fg);color:var(--color-panel);border-color:var(--color-fg)}
-.pp .ubadge{display:inline-block;font-size:.72rem;font-weight:var(--cds-font-weight-medium);letter-spacing:.04em;text-transform:uppercase;color:var(--color-fg-muted);border:1px solid var(--color-border-line);border-radius:999px;padding:1px 8px;margin-right:6px;vertical-align:1px}
-.pp .bhouse{display:flex;align-items:center;gap:0}
-.pp .blist{display:flex;flex-direction:column;gap:18px}
-.pp .bgroup h3{font-size:.85rem;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);margin:0 0 8px;letter-spacing:.01em}
-.pp .bitems{display:flex;flex-direction:column;gap:8px}
-.pp .bitem{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 12px;align-items:center;background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:12px;padding:10px 12px}
-.pp .bitem.me{border-color:color-mix(in srgb,var(--you) 45%,transparent);background:color-mix(in srgb,var(--you) 8%,var(--color-panel))}
-.pp .bitem .thumb{width:56px;height:56px;border-radius:8px}
-.pp .bmain{min-width:0;display:flex;flex-direction:column;gap:2px}
-.pp .bhouse{font-size:.8rem;color:var(--color-fg-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pp .bdates{font-weight:var(--cds-font-weight-medium);font-size:1rem}
-.pp .bsold{font-size:.875rem;font-variant-numeric:tabular-nums}
-.pp .byou{grid-column:1 / -1;font-size:.85rem;font-variant-numeric:tabular-nums;padding-top:8px;border-top:1px solid var(--color-border-line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.pp .byou .tag{font-weight:var(--cds-font-weight-medium);color:var(--a)}
-@media (min-width:640px){.pp .bitem{grid-template-columns:auto minmax(0,1fr) auto}.pp .byou{grid-column:auto;border-top:none;padding-top:0;flex-direction:column;align-items:flex-end;text-align:right}}
+.pp .ubadge{display:inline-block;font-size:.7rem;font-weight:var(--cds-font-weight-medium);letter-spacing:.04em;text-transform:uppercase;color:var(--color-fg-muted);border:1px solid var(--color-border-line);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pp tr.xr{cursor:pointer}
+.pp tr.xr:hover td{background:color-mix(in srgb,var(--color-fg) 4%,transparent)}
+.pp tr.me.xr:hover td{background:color-mix(in srgb,var(--you) 16%,transparent)}
+.pp tr.xr.open td{border-bottom-color:transparent}
+.pp .hcol{display:flex;flex-direction:column;gap:1px;min-width:0}
+.pp .xbtn{font:inherit;font-size:.78rem;font-weight:400;color:var(--color-fg-muted);background:none;border:0;padding:2px 0;display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-align:left;min-height:24px}
+.pp .xbtn b{font-weight:var(--cds-font-weight-medium);color:var(--color-fg)}
+.pp .xbtn svg{transition:transform .15s;flex:none}
+.pp .xbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.pp tr.xrow td{text-align:left;padding:2px 6px 14px;font-weight:400;background:none}
+.pp .xbox{display:flex;flex-direction:column;gap:8px}
+.pp .xgroup{font-size:.78rem;color:var(--color-fg-muted);font-weight:var(--cds-font-weight-medium);margin-top:2px}
+.pp .xitem{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:3px}
+.pp .xtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pp .xdates{font-weight:var(--cds-font-weight-medium);font-size:.9rem}
+.pp .xdet{font-size:.85rem}
+.pp .xyou{font-size:.82rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:6px;margin-top:3px;border-top:1px solid var(--color-border-line)}
+.pp .xyou .tag{font-weight:var(--cds-font-weight-medium);color:var(--a)}
+.pp .xfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.82rem}
+.pp .xfoot button{font:inherit;font-size:.82rem;padding:6px 12px;min-height:34px;border-radius:999px;border:1px solid var(--color-border-line);background:var(--color-panel);color:var(--color-fg);cursor:pointer}
+.pp .xnone{font-size:.85rem;color:var(--color-fg-muted)}
 .pp .empty{padding:18px;border:1px dashed var(--color-border-line);border-radius:12px;color:var(--color-fg-muted);font-size:.9rem}
 .pp .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 @media (min-width:720px){.pp .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -165,13 +168,6 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <div class="cards" data-draw="gap-cards" data-source="gaps"></div>
   </section>
 
-  <section id="updates">
-    <h2>What changed since the last check</h2>
-    <p class="sub">Every change between two daily checks in the last 7 days: stays that got booked, nights that opened up again (often a cancellation), and price changes of 3% or more. Next to each, what your house charges for the same nights if it is open.</p>
-    <div class="ufilter" data-draw="upd-filter" data-source="updates" role="group" aria-label="Show"></div>
-    <div class="blist" data-draw="upd-list" data-source="updates"></div>
-  </section>
-
   <section class="tiles" id="kpis">
     <div class="tile"><span class="tl">You vs. peers</span><span class="big" data-draw="k-gap" data-source="summary" data-field="gap_pct" data-row="0">—</span><span class="cmp">Same nights, per night</span></div>
     <div class="tile"><span class="tl">Your average</span><span class="big" data-draw="k-me" data-source="summary" data-field="my_avg" data-row="0">—</span><span class="cmp">Peers <span data-draw="k-peer" data-source="summary" data-field="peer_avg" data-row="0">—</span></span></div>
@@ -197,7 +193,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 
   <section id="ranking">
     <h2>How each house compares</h2>
-    <p class="sub">"Vs. you" compares each house with yours on nights you both had open. A minus means cheaper than you.</p>
+    <p class="sub">"Vs. you" compares each house with yours on nights you both had open. A minus means cheaper than you. Tap a house to see what changed in its calendar and prices: new bookings, nights that opened up again (often a cancellation) and price moves of 3% or more, each next to your price for the same nights.</p>
     <table class="rank" data-source="bylisting" data-row-key="listing_id">
       <thead><tr><th data-field="listing">House</th><th data-field="avg_per_night">Per night</th><th data-field="vs_me_pct">Vs. you</th><th class="wide" data-field="booked_pct">Booked</th></tr></thead>
       <tbody data-draw="rank-rows"></tbody>
@@ -209,7 +205,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <summary>How this works</summary>
     <ul>
       <li>Every day the price of each house is checked for every check-in date in the next 3 months (as far as the Apify scan reaches), for 2 adults, and kept. Price per night is the Airbnb total with all fees, before taxes, divided by the nights quoted (usually the minimum stay). A night no stay can start on, because of a minimum stay or a booking right after it, takes the per-night price of the stay that covers it.</li>
-      <li>"What changed since the last check" compares each daily check with the one before. A night that turns unavailable may also have been closed by the host; Airbnb doesn't show the difference.</li>
+      <li>The changes under each house in "How each house compares" come from comparing each daily check with the one before. A night that turns unavailable may also have been closed by the host; Airbnb doesn't show the difference.</li>
       <li>When a night that was open gets booked, the last price seen for it is kept and used as its likely booking price. These fill in as the daily checks pile up.</li>
       <li>Calls: <b>Reduce</b> when you are more than 10% above peers while they still have room, or above them with a week or less to go. <b>Increase</b> when peers are mostly booked and you are at or below their price. Otherwise <b>Keep</b>. Suggested prices are rounded to $5.</li>
       <li>Peers leave out "1221AB (2nd listing)", the same house as "1221 Ab", and "Themed villa (Julie)", whose calendar is closed.</li>
@@ -362,7 +358,7 @@ dash.calc('bylisting', {
 
 dash.calc('updates', {
   title: 'Changes between daily checks',
-  description: 'For the last 7 days of checks: stays newly booked, nights that reopened, and per-night price changes of 3% or more, grouped into runs of nights per house, with your price for the same nights if your house is open.',
+  description: 'For every pair of consecutive daily checks: stays newly booked, nights that reopened, and per-night price changes of 3% or more, grouped into runs of nights per house, with your price for the same nights if your house is open.',
   inputs: ['prices', 'availability', 'listings'],
   fn: (prices, availability, listings) => {
     const role = roleOf(listings), info = Object.fromEntries(listings.map((l) => [l.id, l]));
@@ -381,11 +377,10 @@ dash.calc('updates', {
     }
     const priceAt = (s, k) => (D[s] && D[s][k] != null ? D[s][k] : CV[s] && CV[s][k] != null ? CV[s][k] : null);
     const lastPrice = (k, upto) => { for (let i = scrapes.indexOf(upto); i >= 0; i--) { const v = priceAt(scrapes[i], k); if (v != null) return v; } return null; };
-    const last = scrapes[scrapes.length - 1], from = addDays(last, -7), out = [];
+    const out = [];
     const ORDER = { booked: 0, reopened: 1, price: 2 };
     for (let i = 1; i < scrapes.length; i++) {
       const prev = scrapes[i - 1], cur = scrapes[i];
-      if (cur <= from) continue;
       const hits = [];
       for (const k in A[cur]) {
         const [lid, night] = k.split('|');
@@ -606,64 +601,54 @@ dash.draw('date-chart', (box) => {
     .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
 });
 
-let updFilter = 'all';
-const UPD_LABEL = { all: 'All', booked: 'Booked', reopened: 'Reopened', price: 'Price changes' };
 const updRows = () => { const d = dash.data('updates'); return d.status === 'ok' && d.data ? d.data : null; };
-const renderUpdList = () => document.querySelectorAll('[data-draw="upd-list"]').forEach((b) => drawUpdList(b));
-dash.draw('upd-filter', (box) => {
-  const rows = updRows(); box.replaceChildren(); if (!rows || !rows.length) return;
-  const cnt = { all: rows.length, booked: 0, reopened: 0, price: 0 }; rows.forEach((r) => cnt[r.type]++);
-  for (const k of ['all', 'booked', 'reopened', 'price']) {
-    if (k !== 'all' && !cnt[k]) continue;
-    const b = el('button', null, UPD_LABEL[k] + ' · ' + cnt[k]); b.type = 'button'; b.setAttribute('aria-pressed', String(updFilter === k));
-    b.addEventListener('click', () => { updFilter = k; box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderUpdList(); });
-    box.appendChild(b);
-  }
-});
-const drawUpdList = (box) => {
-  setYou();
-  const d = dash.data('updates'); box.replaceChildren();
-  if (d.status === 'error') { box.appendChild(el('div', 'empty', 'Changes could not be worked out from the data.')); return; }
-  if (d.status !== 'ok' || !d.data) return;
-  const ns = dash.data('nights'); const scrape = ns.status === 'ok' && ns.data && ns.data[0] ? ns.data[0].scrape_date : null;
-  const all = d.data, rows = updFilter === 'all' ? all : all.filter((r) => r.type === updFilter);
-  if (!all.length) { box.appendChild(el('div', 'empty', 'No changes found in the last 7 days of checks' + (scrape ? ' (latest ' + fmtDay(P(scrape)) + ')' : '') + '.')); return; }
-  const groups = {};
-  for (const r of rows) (groups[r.detected] = groups[r.detected] || []).push(r);
-  if (scrape && !all.some((r) => r.detected === scrape)) box.appendChild(el('div', 'empty', 'Nothing changed in the latest check (' + fmtDay(P(scrape)) + '). Earlier changes from the last 7 days are below.'));
-  const range = (r) => (r.type === 'price' ? 'Check-in ' + fmtDay(P(r.first_night)) + (r.nights > 1 ? ' – ' + fmtDay(P(r.last_night)) : '') : fmtDay(P(r.first_night)) + ' – ' + fmtDay(P(r.checkout)) + ' · ' + r.nights + (r.nights === 1 ? ' night' : ' nights'));
-  for (const day of Object.keys(groups).sort().reverse()) {
-    const list = groups[day], sec = el('div', 'bgroup');
-    const c = { booked: 0, reopened: 0, price: 0 }; list.forEach((r) => c[r.type]++);
-    const parts = []; if (c.booked) parts.push(c.booked + ' booked'); if (c.reopened) parts.push(c.reopened + ' reopened'); if (c.price) parts.push(c.price + ' price ' + (c.price === 1 ? 'change' : 'changes'));
-    sec.appendChild(el('h3', null, 'Found ' + fmtDay(P(day)) + ' (since ' + fmtDay(P(list[0].since)) + ') · ' + parts.join(', ')));
-    const wrap = el('div', 'bitems');
-    for (const r of list) {
-      const it = el('div', 'bitem' + (r.mine === '1' ? ' me' : ''));
-      if (/^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(r.thumb || '')) { const im = el('img', 'thumb'); im.src = r.thumb; im.alt = ''; im.loading = 'lazy'; it.appendChild(im); } else it.appendChild(el('span', 'thumb'));
-      const main = el('div', 'bmain');
-      const badge = r.type === 'booked' ? 'Booked' : r.type === 'reopened' ? 'Reopened' : (r.change_pct > 0 ? 'Price up' : 'Price down');
-      const hd = el('span', 'bhouse'); hd.append(el('span', 'ubadge', badge), document.createTextNode(r.mine === '1' ? 'Your house' : r.listing));
-      let detail;
-      if (r.type === 'booked') detail = r.old_per_night != null ? 'Last seen at ' + usd(r.old_per_night) + ' per night' : 'No price seen before it went';
-      else if (r.type === 'reopened') detail = r.new_per_night != null ? 'Open again at ' + usd(r.new_per_night) + ' per night' : 'Open again, no price shown yet';
-      else detail = usd(r.old_per_night) + ' → ' + usd(r.new_per_night) + ' per night (' + signed(r.change_pct) + ')';
-      main.append(hd, el('span', 'bdates', range(r)), el('span', 'bsold', detail));
-      it.appendChild(main);
-      const you = el('div', 'byou');
-      if (r.mine === '1') you.append(el('span', null, r.type === 'booked' ? 'Your house got booked' : r.type === 'reopened' ? 'Your nights opened up again' : 'Your own price changed'), el('span', 'tag a-keep', r.type === 'price' ? signed(r.change_pct) : badge));
-      else if (!r.me_open_nights) you.append(el('span', null, 'You: booked for these nights'), el('span', 'tag a-keep', 'Booked'));
-      else {
-        const v = r.me_vs_pct, cls = v == null ? 'a-keep' : v > 3 ? 'a-reduce' : v < -3 ? 'a-increase' : 'a-keep';
-        you.append(el('span', null, 'You: ' + (r.me_per_night != null ? usd(r.me_per_night) + ' per night' : 'open, no price') + (r.me_open_nights < r.nights ? ' (' + r.me_open_nights + ' of ' + r.nights + ' open)' : ', open')),
-          el('span', 'tag ' + cls, v == null ? '' : Math.abs(v) <= 3 ? (v === 0 ? 'Same price' : signed(v) + ' · similar') : signed(v) + (v > 0 ? ' dearer' : ' cheaper')));
-      }
-      it.appendChild(you); wrap.appendChild(it);
+const rankOpen = new Set(), rankAll = new Set();
+const CHEV = '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const updBadge = (r) => (r.type === 'booked' ? 'Booked' : r.type === 'reopened' ? 'Reopened' : r.change_pct > 0 ? 'Price up' : 'Price down');
+const updRange = (r) => (r.type === 'price' ? 'Check-in ' + fmtDay(P(r.first_night)) + (r.nights > 1 ? ' – ' + fmtDay(P(r.last_night)) : '') : fmtDay(P(r.first_night)) + ' – ' + fmtDay(P(r.checkout)) + ' · ' + r.nights + (r.nights === 1 ? ' night' : ' nights'));
+const updItem = (r) => {
+  const it = el('div', 'xitem'), top = el('div', 'xtop');
+  top.append(el('span', 'ubadge', updBadge(r)), el('span', 'xdates', updRange(r)));
+  let detail;
+  if (r.type === 'booked') detail = r.old_per_night != null ? 'Last seen at ' + usd(r.old_per_night) + ' per night' : 'No price seen before it went';
+  else if (r.type === 'reopened') detail = r.new_per_night != null ? 'Open again at ' + usd(r.new_per_night) + ' per night' : 'Open again, no price shown yet';
+  else detail = usd(r.old_per_night) + ' → ' + usd(r.new_per_night) + ' per night (' + signed(r.change_pct) + ')';
+  it.append(top, el('div', 'xdet', detail));
+  if (r.mine !== '1') {
+    const you = el('div', 'xyou');
+    if (!r.me_open_nights) you.append(el('span', null, 'You: booked for these nights'), el('span', 'tag a-keep', 'Booked'));
+    else {
+      const v = r.me_vs_pct, cls = v == null ? 'a-keep' : v > 3 ? 'a-reduce' : v < -3 ? 'a-increase' : 'a-keep';
+      you.append(el('span', null, 'You: ' + (r.me_per_night != null ? usd(r.me_per_night) + ' per night' : 'open, no price') + (r.me_open_nights < r.nights ? ' (' + r.me_open_nights + ' of ' + r.nights + ' open)' : ', open')),
+        el('span', 'tag ' + cls, v == null ? '' : Math.abs(v) <= 3 ? (v === 0 ? 'Same price' : signed(v) + ' · similar') : signed(v) + (v > 0 ? ' dearer' : ' cheaper')));
     }
-    sec.appendChild(wrap); box.appendChild(sec);
+    it.appendChild(you);
+  }
+  return it;
+};
+const UPD_SHOW = 6;
+const fillChanges = (box, r, ch, status) => {
+  box.replaceChildren();
+  if (status === 'error') box.appendChild(el('div', 'xnone', 'Changes could not be worked out from the data.'));
+  else if (!ch.length) box.appendChild(el('div', 'xnone', 'No bookings, reopened nights or price moves of 3% or more seen yet. Changes show up here once two daily checks differ.'));
+  else {
+    const showAll = rankAll.has(r.listing_id), list = showAll ? ch : ch.slice(0, UPD_SHOW);
+    let day = null;
+    for (const u of list) {
+      if (u.detected !== day) { day = u.detected; box.appendChild(el('div', 'xgroup', 'Found ' + fmtDay(P(u.detected)) + ' · since ' + fmtDay(P(u.since)))); }
+      box.appendChild(updItem(u));
+    }
+    if (ch.length > UPD_SHOW) {
+      const b = el('button', null, showAll ? 'Show fewer' : 'Show all ' + ch.length + ' changes'); b.type = 'button';
+      b.addEventListener('click', (e) => { e.stopPropagation(); if (showAll) rankAll.delete(r.listing_id); else rankAll.add(r.listing_id); fillChanges(box, r, ch, status); });
+      const f = el('div', 'xfoot'); f.appendChild(b); box.appendChild(f);
+    }
+  }
+  if (/^https:\/\//.test(r.url || '')) {
+    const f = el('div', 'xfoot'), a = el('a', null, 'Open on Airbnb ↗'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener';
+    a.addEventListener('click', (e) => e.stopPropagation()); f.appendChild(a); box.appendChild(f);
   }
 };
-dash.draw('upd-list', drawUpdList);
 
 dash.draw('booked-chart', (box) => {
   setYou();
@@ -694,20 +679,39 @@ dash.draw('booked-chart', (box) => {
 });
 
 dash.draw('rank-rows', (tb) => {
+  setYou();
   const d = dash.data('bylisting'); tb.replaceChildren();
   if (d.status !== 'ok' || !d.data) return;
+  const ud = dash.data('updates'), U = updRows() || [];
+  const ns = dash.data('nights'); const scrape = ns.status === 'ok' && ns.data && ns.data[0] ? ns.data[0].scrape_date : null;
   const rows = d.data.filter((r) => r.mine === '1' || r.peer_counted === '1').sort((a, b) => (b.vs_me_pct ?? -999) - (a.vs_me_pct ?? -999));
   for (const r of rows) {
-    const tr = el('tr', r.mine === '1' ? 'me' : null); tr.dataset.key = encodeURIComponent(r.listing_id);
+    const ch = U.filter((u) => u.listing_id === r.listing_id), fresh = scrape ? ch.filter((u) => u.detected === scrape).length : 0;
+    const open = rankOpen.has(r.listing_id), pid = 'xr-' + r.listing_id;
+    const tr = el('tr', 'xr' + (r.mine === '1' ? ' me' : '') + (open ? ' open' : '')); tr.dataset.key = encodeURIComponent(r.listing_id);
     const td0 = el('td'); const wrap = el('div', 'house');
     if (/^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(r.thumb || '')) { const im = el('img', 'thumb'); im.src = r.thumb; im.alt = ''; im.loading = 'lazy'; wrap.appendChild(im); } else wrap.appendChild(el('span', 'thumb'));
-    const nm = el('span', 'hname');
-    if (/^https:\/\//.test(r.url || '')) { const a = el('a', null, r.listing); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; nm.appendChild(a); } else nm.textContent = r.listing;
-    wrap.appendChild(nm); td0.appendChild(wrap);
-    const vs = el('td', null,
-      r.mine === '1' ? '–' : r.vs_me_pct == null ? 'no shared nights' : signed(r.vs_me_pct));
+    const col = el('div', 'hcol'); col.appendChild(el('span', 'hname', r.listing));
+    const btn = el('button', 'xbtn'); btn.type = 'button'; btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-controls', pid);
+    const word = (n) => (n === 1 ? ' change' : ' changes'), lab = el('span');
+    if (ud.status !== 'ok') lab.textContent = 'Changes';
+    else if (!ch.length) lab.textContent = 'No changes yet';
+    else if (fresh === ch.length) { lab.appendChild(el('b', null, fresh + ' new')); lab.append(word(fresh)); }
+    else { lab.append(ch.length + word(ch.length)); if (fresh) { lab.append(' · '); lab.appendChild(el('b', null, fresh + ' new')); } }
+    btn.appendChild(lab); btn.insertAdjacentHTML('beforeend', CHEV);
+    col.appendChild(btn); wrap.appendChild(col); td0.appendChild(wrap);
+    const vs = el('td', null, r.mine === '1' ? '–' : r.vs_me_pct == null ? 'no shared nights' : signed(r.vs_me_pct));
     tr.append(td0, el('td', null, r.avg_per_night != null ? usd(r.avg_per_night) : 'fully booked'), vs, el('td', 'wide', r.booked_pct != null ? r.booked_pct + '%' : '–'));
-    tb.appendChild(tr);
+    const xr = el('tr', 'xrow'); xr.id = pid; xr.hidden = !open;
+    const xtd = el('td'); xtd.colSpan = 4; const box = el('div', 'xbox'); xtd.appendChild(box); xr.appendChild(xtd);
+    if (open) fillChanges(box, r, ch, ud.status);
+    const toggle = () => {
+      const now = !rankOpen.has(r.listing_id);
+      if (now) { rankOpen.add(r.listing_id); fillChanges(box, r, ch, ud.status); } else rankOpen.delete(r.listing_id);
+      xr.hidden = !now; tr.classList.toggle('open', now); btn.setAttribute('aria-expanded', String(now));
+    };
+    tr.addEventListener('click', toggle);
+    tb.append(tr, xr);
   }
 });
 
