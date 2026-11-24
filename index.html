@@ -98,18 +98,42 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp details.nights table{margin-top:6px}
 .pp .ubadge{display:inline-block;font-size:.7rem;font-weight:var(--cds-font-weight-medium);letter-spacing:.04em;text-transform:uppercase;color:var(--color-fg-muted);border:1px solid var(--color-border-line);border-radius:999px;padding:1px 8px;white-space:nowrap}
 .pp tr.xr{cursor:pointer}
-.pp tr.xr:hover td{background:color-mix(in srgb,var(--color-fg) 4%,transparent)}
-.pp tr.me.xr:hover td{background:color-mix(in srgb,var(--you) 16%,transparent)}
+.pp tr.xr:hover td{background:color-mix(in srgb,var(--color-fg) 4%,var(--color-panel))}
+.pp tr.me.xr:hover td{background:color-mix(in srgb,var(--you) 18%,var(--color-panel))}
+.pp .rwrap{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pp .rwrap:empty{min-height:120px}
+.pp .rhint{position:sticky;left:0;box-sizing:border-box;padding:8px 8px 0;font-size:.75rem;color:var(--color-fg-muted)}
+.pp .rank th,.pp .rank td{padding:9px 5px}
+.pp .rank th:first-child,.pp .rank td:first-child{position:sticky;left:0;z-index:1;background:var(--color-panel);min-width:130px;max-width:240px}
+.pp .rank .thumb{width:44px;height:32px}
+@media (min-width:600px){.pp .rank th,.pp .rank td{padding:9px 8px}.pp .rank td.mc{min-width:64px}.pp .rank .thumb{width:64px;height:44px}.pp .rank th:first-child,.pp .rank td:first-child{min-width:220px}}
+.pp .rank tr:last-child td{border-bottom:none}
+.pp .rank th.mh{white-space:nowrap;vertical-align:bottom}
+.pp .mh .mn{display:block;color:var(--color-fg)}
+.pp .mh.past .mn{color:var(--color-fg-muted)}
+.pp .mh .ms{display:block;font-size:.7rem;font-weight:400;min-height:1.1em}
+.pp .rank td.mc{white-space:nowrap;min-width:50px}
+.pp .mc .mp{display:block}
+.pp .mc .mb{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--color-fg-muted);font-weight:400}
+.pp .mbar{display:inline-block;width:26px;height:4px;border-radius:2px;background:var(--color-border-line);overflow:hidden}
+.pp .mbar i{display:block;height:100%;background:var(--cds-chart-muted)}
+.pp tr.me .mbar i{background:var(--you)}
+.pp .rank tr.peer td{color:var(--color-fg-muted);border-top:2px solid var(--color-border-line)}
+.pp .rank tr.peer .hname{color:var(--color-fg)}
+.pp .rank tr.xrow td{position:static;min-width:0;max-width:none;background:none}
+.pp .rank tr.me td{background:color-mix(in srgb,var(--you) 12%,var(--color-panel))}
+.pp .rank tr.xr:hover td{background:color-mix(in srgb,var(--color-fg) 4%,var(--color-panel))}
+.pp .rank tr.me.xr:hover td{background:color-mix(in srgb,var(--you) 18%,var(--color-panel))}
 .pp tr.xr.open td{border-bottom-color:transparent}
 .pp .hcol{display:flex;flex-direction:column;gap:1px;min-width:0}
-.pp .xbtn{font:inherit;font-size:.78rem;font-weight:400;color:var(--color-fg-muted);background:none;border:0;padding:2px 0;display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-align:left;min-height:24px}
+.pp .xbtn{font:inherit;font-size:.78rem;font-weight:400;color:var(--color-fg-muted);background:none;border:0;padding:4px 0 0;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;cursor:pointer;text-align:left;min-height:24px}
 .pp .xbtn b{font-weight:var(--cds-font-weight-medium);color:var(--color-fg)}
 .pp .xbtn svg{transition:transform .15s;flex:none}
 .pp .xbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
-.pp tr.xrow td{text-align:left;padding:2px 6px 14px;font-weight:400;background:none}
-.pp .xbox{display:flex;flex-direction:column;gap:8px}
+.pp tr.xrow td{text-align:left;padding:2px 0 14px;font-weight:400;background:none}
+.pp .xbox{display:flex;flex-direction:column;gap:8px;position:sticky;left:0;box-sizing:border-box;padding:0 8px}
 .pp .xgroup{font-size:.78rem;color:var(--color-fg-muted);font-weight:var(--cds-font-weight-medium);margin-top:2px}
-.pp .xitem{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:3px}
+.pp .xitem{background:color-mix(in srgb,var(--color-fg) 3%,var(--color-panel));border:1px solid var(--color-border-line);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:3px}
 .pp .xtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .pp .xdates{font-weight:var(--cds-font-weight-medium);font-size:.9rem}
 .pp .xdet{font-size:.85rem}
@@ -145,7 +169,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 @media (min-width:600px){.pp .thumb{width:72px;height:48px}}
 .pp .hname{overflow-wrap:anywhere;line-height:1.3}
 .pp .rank td{vertical-align:middle}
-.pp tr.me td{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--you) 12%,transparent)}
+.pp tr.me td{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--you) 12%,var(--color-panel))}
 .pp .wide{display:none}
 @media (min-width:600px){.pp .wide{display:table-cell}}
 .pp .bk{color:var(--color-fg-muted);font-style:italic}
@@ -193,11 +217,8 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 
   <section id="ranking">
     <h2>How each house compares</h2>
-    <p class="sub">"Vs. you" compares each house with yours on nights you both had open. A minus means cheaper than you. Tap a house to see what changed in its calendar and prices: new bookings, nights that opened up again (often a cancellation) and price moves of 3% or more, each next to your price for the same nights.</p>
-    <table class="rank" data-source="bylisting" data-row-key="listing_id">
-      <thead><tr><th data-field="listing">House</th><th data-field="avg_per_night">Per night</th><th data-field="vs_me_pct">Vs. you</th><th class="wide" data-field="booked_pct">Booked</th></tr></thead>
-      <tbody data-draw="rank-rows"></tbody>
-    </table>
+    <p class="sub">Each month shows the average price per night, and under it the share of nights booked. Booked nights count at the last price seen before they were taken. Past months build up from the daily checks, up to 3 months back; the months ahead go as far as the scan reaches. Sorted by price for this month and the months ahead, dearest first. Tap a house to see its changes: new bookings, reopened nights and price moves.</p>
+    <div class="rwrap" data-draw="rank-table" data-source="bymonth"></div>
   </section>
 
 
@@ -353,6 +374,50 @@ dash.calc('bylisting', {
         vs_me_pct: l.id === me.id ? 0 : shared.length ? Math.round((mean(shared.map((d) => mq[d] / mine[d])) - 1) * 100) : null,
         nights_priced: vals.length, booked_pct: tot[l.id] ? Math.round(((bk[l.id] || 0) / tot[l.id]) * 100) : null };
     });
+  }
+});
+
+const monthAdd = (m, n) => { const [y, mo] = m.split('-').map(Number), t = y * 12 + mo - 1 + n; return Math.floor(t / 12) + '-' + String((t % 12) + 1).padStart(2, '0'); };
+const monthDays = (m) => { const [y, mo] = m.split('-').map(Number); return new Date(Date.UTC(y, mo, 0)).getUTCDate(); };
+
+dash.calc('bymonth', {
+  title: 'Price and booked by month',
+  description: 'For each house and month, from up to 3 months back to the end of the latest scan: average price per night (open nights at their price, booked nights at the last price seen before they were taken) and the share of nights booked. Each night uses the latest check that still showed it, so past months build up as daily checks pile up.',
+  inputs: ['prices', 'availability', 'listings'],
+  fn: (prices, availability, listings) => {
+    const role = roleOf(listings);
+    const last = availability.reduce((m, r) => (r.scrape_date > m ? r.scrape_date : m), '');
+    if (!last) return [];
+    const curMonth = last.slice(0, 7), firstMonth = monthAdd(curMonth, -3);
+    const PD = {}, PC = {};
+    for (const r of prices) {
+      if (r.status !== 'ok' || r.per_night_usd == null) continue;
+      const v = num(r.per_night_usd);
+      (PD[r.listing_id + '|' + r.checkin] = PD[r.listing_id + '|' + r.checkin] || {})[r.scrape_date] = v;
+      for (let i = 1; i < (num(r.nights) || 1); i++) { const o = (PC[r.listing_id + '|' + addDays(r.checkin, i)] = PC[r.listing_id + '|' + addDays(r.checkin, i)] || {}); if (o[r.scrape_date] == null) o[r.scrape_date] = v; }
+    }
+    const at = (k, sd) => (PD[k] && PD[k][sd] != null ? PD[k][sd] : PC[k] && PC[k][sd] != null ? PC[k][sd] : null);
+    const fin = {}, openAt = {};
+    for (const a of availability) {
+      if (a.night.slice(0, 7) < firstMonth || role[a.listing_id] == null || !'OBC'.includes(a.state)) continue;
+      const k = a.listing_id + '|' + a.night;
+      if (!fin[k] || a.scrape_date > fin[k].s) fin[k] = { s: a.scrape_date, st: a.state };
+      if (a.state === 'O') (openAt[k] = openAt[k] || []).push(a.scrape_date);
+    }
+    const agg = {}, cov = {};
+    for (const k in fin) {
+      const [lid, night] = k.split('|'), f = fin[k], open = f.st === 'O', m = night.slice(0, 7);
+      let v = null;
+      if (open) v = at(k, f.s);
+      if (v == null && openAt[k]) { const ss = openAt[k].sort(); for (let i = ss.length - 1; i >= 0 && v == null; i--) v = at(k, ss[i]); }
+      const g = (agg[lid + '|' + m] = agg[lid + '|' + m] || { lid, m, n: 0, b: 0, vals: [] });
+      g.n++; if (!open) g.b++; if (v != null) g.vals.push(v);
+      const c = (cov[m] = cov[m] || { lo: night, hi: night }); if (night < c.lo) c.lo = night; if (night > c.hi) c.hi = night;
+    }
+    return Object.values(agg).map((g) => ({ listing_id: g.lid, month: g.m, past: g.m < curMonth ? 1 : 0, nights: g.n, booked_nights: g.b,
+      booked_pct: Math.round((g.b / g.n) * 100), priced_nights: g.vals.length, avg_per_night: g.vals.length ? Math.round(mean(g.vals)) : null,
+      first_night: cov[g.m].lo, last_night: cov[g.m].hi, days_in_month: monthDays(g.m) }))
+      .sort((a, b) => (a.month !== b.month ? (a.month < b.month ? -1 : 1) : a.listing_id < b.listing_id ? -1 : 1));
   }
 });
 
@@ -678,20 +743,45 @@ dash.draw('booked-chart', (box) => {
     .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
 });
 
-dash.draw('rank-rows', (tb) => {
+dash.draw('rank-table', (box) => {
   setYou();
-  const d = dash.data('bylisting'); tb.replaceChildren();
-  if (d.status !== 'ok' || !d.data) return;
+  const bm = dash.data('bymonth'), bl = dash.data('bylisting'); box.replaceChildren();
+  if (bm.status === 'error' || bl.status === 'error') { box.appendChild(el('div', 'empty', 'This table could not load its data.')); return; }
+  if (bm.status !== 'ok' || bl.status !== 'ok' || !bm.data || !bl.data) return;
   const ud = dash.data('updates'), U = updRows() || [];
   const ns = dash.data('nights'); const scrape = ns.status === 'ok' && ns.data && ns.data[0] ? ns.data[0].scrape_date : null;
-  const rows = d.data.filter((r) => r.mine === '1' || r.peer_counted === '1').sort((a, b) => (b.vs_me_pct ?? -999) - (a.vs_me_pct ?? -999));
+  const months = [...new Set(bm.data.map((r) => r.month))].sort(), cov = {}, M = {};
+  for (const r of bm.data) { cov[r.month] = r; M[r.listing_id + '|' + r.month] = r; }
+  const multiYear = new Set(months.map((m) => m.slice(0, 4))).size > 1;
+  const mLabel = (m) => d3.utcFormat('%b')(P(m + '-01')) + (multiYear && (m.endsWith('-01') || m === months[0]) ? ' ’' + m.slice(2, 4) : '');
+  const ahead = (id) => mean(months.filter((m) => !cov[m].past).map((m) => (M[id + '|' + m] ? M[id + '|' + m].avg_per_night : null)));
+  const rows = bl.data.filter((r) => r.mine === '1' || r.peer_counted === '1').sort((a, b) => (ahead(b.listing_id) ?? -1) - (ahead(a.listing_id) ?? -1));
+  const tbl = el('table', 'rank'); tbl.dataset.source = 'bymonth'; tbl.dataset.rowKey = 'listing_id';
+  const hr = el('tr'); hr.appendChild(el('th', null, 'House'));
+  for (const m of months) {
+    const c = cov[m], th = el('th', 'mh' + (c.past ? ' past' : '')), d1 = +c.first_night.slice(8), d2 = +c.last_night.slice(8);
+    th.append(el('span', 'mn', mLabel(m)), el('span', 'ms', d1 > 1 || d2 < c.days_in_month ? d1 + '–' + d2 : ' '));
+    th.title = c.past ? 'Past month' : d1 > 1 || d2 < c.days_in_month ? 'Nights ' + d1 + ' to ' + d2 + ' so far' : '';
+    hr.appendChild(th);
+  }
+  const thead = el('thead'); thead.appendChild(hr); const tb = el('tbody');
+  const cell = (r, mine) => {
+    const td = el('td', 'mc');
+    if (!r) { td.textContent = '–'; return td; }
+    td.appendChild(el('span', 'mp', r.avg_per_night != null ? usd(r.avg_per_night) : '–'));
+    const b = el('span', 'mb'), bar = el('span', 'mbar'), fill = el('i'); fill.style.width = r.booked_pct + '%'; bar.appendChild(fill);
+    b.append(bar, document.createTextNode(r.booked_pct + '%')); td.appendChild(b);
+    td.title = (mine ? 'You: ' : '') + r.booked_nights + ' of ' + r.nights + ' nights booked' + (r.avg_per_night != null ? ', average ' + usd(r.avg_per_night) + ' per night' : '');
+    return td;
+  };
+  const rw = box.clientWidth;
   for (const r of rows) {
     const ch = U.filter((u) => u.listing_id === r.listing_id), fresh = scrape ? ch.filter((u) => u.detected === scrape).length : 0;
     const open = rankOpen.has(r.listing_id), pid = 'xr-' + r.listing_id;
     const tr = el('tr', 'xr' + (r.mine === '1' ? ' me' : '') + (open ? ' open' : '')); tr.dataset.key = encodeURIComponent(r.listing_id);
     const td0 = el('td'); const wrap = el('div', 'house');
     if (/^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(r.thumb || '')) { const im = el('img', 'thumb'); im.src = r.thumb; im.alt = ''; im.loading = 'lazy'; wrap.appendChild(im); } else wrap.appendChild(el('span', 'thumb'));
-    const col = el('div', 'hcol'); col.appendChild(el('span', 'hname', r.listing));
+    wrap.appendChild(el('span', 'hname', r.listing));
     const btn = el('button', 'xbtn'); btn.type = 'button'; btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-controls', pid);
     const word = (n) => (n === 1 ? ' change' : ' changes'), lab = el('span');
     if (ud.status !== 'ok') lab.textContent = 'Changes';
@@ -699,20 +789,37 @@ dash.draw('rank-rows', (tb) => {
     else if (fresh === ch.length) { lab.appendChild(el('b', null, fresh + ' new')); lab.append(word(fresh)); }
     else { lab.append(ch.length + word(ch.length)); if (fresh) { lab.append(' · '); lab.appendChild(el('b', null, fresh + ' new')); } }
     btn.appendChild(lab); btn.insertAdjacentHTML('beforeend', CHEV);
-    col.appendChild(btn); wrap.appendChild(col); td0.appendChild(wrap);
-    const vs = el('td', null, r.mine === '1' ? '–' : r.vs_me_pct == null ? 'no shared nights' : signed(r.vs_me_pct));
-    tr.append(td0, el('td', null, r.avg_per_night != null ? usd(r.avg_per_night) : 'fully booked'), vs, el('td', 'wide', r.booked_pct != null ? r.booked_pct + '%' : '–'));
+    td0.append(wrap, btn); tr.appendChild(td0);
+    for (const m of months) tr.appendChild(cell(M[r.listing_id + '|' + m], r.mine === '1'));
     const xr = el('tr', 'xrow'); xr.id = pid; xr.hidden = !open;
-    const xtd = el('td'); xtd.colSpan = 4; const box = el('div', 'xbox'); xtd.appendChild(box); xr.appendChild(xtd);
-    if (open) fillChanges(box, r, ch, ud.status);
-    const toggle = () => {
+    const xtd = el('td'); xtd.colSpan = months.length + 1; const xb = el('div', 'xbox'); if (rw) xb.style.maxWidth = rw - 2 + 'px'; xtd.appendChild(xb); xr.appendChild(xtd);
+    if (open) fillChanges(xb, r, ch, ud.status);
+    tr.addEventListener('click', () => {
       const now = !rankOpen.has(r.listing_id);
-      if (now) { rankOpen.add(r.listing_id); fillChanges(box, r, ch, ud.status); } else rankOpen.delete(r.listing_id);
+      if (now) { rankOpen.add(r.listing_id); fillChanges(xb, r, ch, ud.status); } else rankOpen.delete(r.listing_id);
       xr.hidden = !now; tr.classList.toggle('open', now); btn.setAttribute('aria-expanded', String(now));
-    };
-    tr.addEventListener('click', toggle);
+    });
     tb.append(tr, xr);
   }
+  const peers = rows.filter((r) => r.peer_counted === '1');
+  if (peers.length) {
+    const tr = el('tr', 'peer'), td0 = el('td'), col = el('div', 'hcol');
+    col.append(el('span', 'hname', 'Typical peer'), el('span', 'xnone', 'Median price of ' + peers.length + ' houses'));
+    td0.appendChild(col); tr.appendChild(td0);
+    for (const m of months) {
+      const rs = peers.map((p) => M[p.listing_id + '|' + m]).filter(Boolean);
+      const n = rs.reduce((a, r) => a + r.nights, 0), b = rs.reduce((a, r) => a + r.booked_nights, 0), v = med(rs.map((r) => r.avg_per_night));
+      tr.appendChild(cell(n ? { avg_per_night: v != null ? Math.round(v) : null, booked_pct: Math.round((b / n) * 100), booked_nights: b, nights: n } : null, false));
+    }
+    tb.appendChild(tr);
+  }
+  tbl.append(thead, tb); box.appendChild(tbl);
+  if (box.scrollWidth > box.clientWidth + 4) {
+    const h = el('div', 'rhint', 'Swipe the table sideways to see every month, ' + mLabel(months[0]) + ' to ' + mLabel(months[months.length - 1]) + '.');
+    h.style.maxWidth = box.clientWidth + 'px'; box.insertBefore(h, tbl);
+  }
+  const ci = months.findIndex((m) => !cov[m].past);
+  if (ci > 0 && box.scrollWidth > box.clientWidth) box.scrollLeft = hr.children[ci + 1].offsetLeft - hr.children[0].offsetWidth;
 });
 
 </script>
