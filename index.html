@@ -96,6 +96,12 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
 .pp .why{font-size:.9rem;line-height:1.45;margin:0}
 .pp details.nights summary{cursor:pointer;font-size:.85rem;color:var(--color-fg-muted);padding:4px 0;min-height:32px;display:flex;align-items:center}
 .pp details.nights table{margin-top:6px}
+.pp .ufilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pp .ufilter:empty{display:none}
+.pp .ufilter button{font:inherit;font-size:.85rem;padding:7px 12px;min-height:36px;border-radius:999px;border:1px solid var(--color-border-line);background:var(--color-panel);color:var(--color-fg);cursor:pointer}
+.pp .ufilter button[aria-pressed="true"]{background:var(--color-fg);color:var(--color-panel);border-color:var(--color-fg)}
+.pp .ubadge{display:inline-block;font-size:.72rem;font-weight:var(--cds-font-weight-medium);letter-spacing:.04em;text-transform:uppercase;color:var(--color-fg-muted);border:1px solid var(--color-border-line);border-radius:999px;padding:1px 8px;margin-right:6px;vertical-align:1px}
+.pp .bhouse{display:flex;align-items:center;gap:0}
 .pp .blist{display:flex;flex-direction:column;gap:18px}
 .pp .bgroup h3{font-size:.85rem;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);margin:0 0 8px;letter-spacing:.01em}
 .pp .bitems{display:flex;flex-direction:column;gap:8px}
@@ -159,10 +165,11 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <div class="cards" data-draw="gap-cards" data-source="gaps"></div>
   </section>
 
-  <section id="newly-booked">
-    <h2>Booked since the last check</h2>
-    <p class="sub">Stays that went from open to booked (or were closed by the host) in the last 7 days, with the last price seen before they went. Next to each, what your house charges for those nights if it is still open.</p>
-    <div class="blist" data-draw="booked-list" data-source="booked"></div>
+  <section id="updates">
+    <h2>What changed since the last check</h2>
+    <p class="sub">Every change between two daily checks in the last 7 days: stays that got booked, nights that opened up again (often a cancellation), and price changes of 3% or more. Next to each, what your house charges for the same nights if it is open.</p>
+    <div class="ufilter" data-draw="upd-filter" data-source="updates" role="group" aria-label="Show"></div>
+    <div class="blist" data-draw="upd-list" data-source="updates"></div>
   </section>
 
   <section class="tiles" id="kpis">
@@ -202,7 +209,7 @@ body{margin:0;background:var(--bg);color:var(--color-fg);padding:max(16px,env(sa
     <summary>How this works</summary>
     <ul>
       <li>Every day the price of each house is checked for every check-in date in the next 3 months (as far as the Apify scan reaches), for 2 adults, and kept. Price per night is the Airbnb total with all fees, before taxes, divided by the nights quoted (usually the minimum stay). A night no stay can start on, because of a minimum stay or a booking right after it, takes the per-night price of the stay that covers it.</li>
-      <li>"Booked since the last check" compares each daily check with the one before. A night that turns unavailable may also have been closed by the host; Airbnb doesn't show the difference.</li>
+      <li>"What changed since the last check" compares each daily check with the one before. A night that turns unavailable may also have been closed by the host; Airbnb doesn't show the difference.</li>
       <li>When a night that was open gets booked, the last price seen for it is kept and used as its likely booking price. These fill in as the daily checks pile up.</li>
       <li>Calls: <b>Reduce</b> when you are more than 10% above peers while they still have room, or above them with a week or less to go. <b>Increase</b> when peers are mostly booked and you are at or below their price. Otherwise <b>Keep</b>. Suggested prices are rounded to $5.</li>
       <li>Peers leave out "1221AB (2nd listing)", the same house as "1221 Ab", and "Themed villa (Julie)", whose calendar is closed.</li>
@@ -353,9 +360,9 @@ dash.calc('bylisting', {
   }
 });
 
-dash.calc('booked', {
-  title: 'Newly booked stays',
-  description: 'Stays that went from open to booked or closed between two daily checks in the last 7 days: house, nights, the last per-night price seen before, and your price for the same nights if your house is still open.',
+dash.calc('updates', {
+  title: 'Changes between daily checks',
+  description: 'For the last 7 days of checks: stays newly booked, nights that reopened, and per-night price changes of 3% or more, grouped into runs of nights per house, with your price for the same nights if your house is open.',
   inputs: ['prices', 'availability', 'listings'],
   fn: (prices, availability, listings) => {
     const role = roleOf(listings), info = Object.fromEntries(listings.map((l) => [l.id, l]));
@@ -375,37 +382,45 @@ dash.calc('booked', {
     const priceAt = (s, k) => (D[s] && D[s][k] != null ? D[s][k] : CV[s] && CV[s][k] != null ? CV[s][k] : null);
     const lastPrice = (k, upto) => { for (let i = scrapes.indexOf(upto); i >= 0; i--) { const v = priceAt(scrapes[i], k); if (v != null) return v; } return null; };
     const last = scrapes[scrapes.length - 1], from = addDays(last, -7), out = [];
+    const ORDER = { booked: 0, reopened: 1, price: 2 };
     for (let i = 1; i < scrapes.length; i++) {
       const prev = scrapes[i - 1], cur = scrapes[i];
       if (cur <= from) continue;
       const hits = [];
-      for (const k in A[prev]) {
-        if (A[prev][k] !== 'O' || A[cur][k] == null || A[cur][k] === 'O') continue;
+      for (const k in A[cur]) {
         const [lid, night] = k.split('|');
-        if (role[lid] === 'skip' || role[lid] == null) continue;
-        hits.push({ lid, night });
+        if (role[lid] == null || role[lid] === 'skip' || A[prev][k] == null) continue;
+        const was = A[prev][k] === 'O', now = A[cur][k] === 'O';
+        if (was && !now) hits.push({ type: 'booked', lid, night, old: lastPrice(k, prev), now: null });
+        else if (!was && now) hits.push({ type: 'reopened', lid, night, old: null, now: priceAt(cur, k) });
+        else if (was && now && D[prev] && D[cur] && D[prev][k] != null && D[cur][k] != null) {
+          const o = D[prev][k], n = D[cur][k];
+          if (Math.abs(n - o) >= 5 && Math.abs(n / o - 1) >= 0.03) hits.push({ type: 'price', lid, night, old: o, now: n, dir: n > o ? 1 : -1 });
+        }
       }
-      hits.sort((a, b) => (a.lid === b.lid ? (a.night < b.night ? -1 : 1) : a.lid < b.lid ? -1 : 1));
+      hits.sort((a, b) => (a.lid !== b.lid ? (a.lid < b.lid ? -1 : 1) : a.type !== b.type ? ORDER[a.type] - ORDER[b.type] : a.night < b.night ? -1 : 1));
       let g = null;
       const flush = () => {
         if (!g) return;
-        const sold = mean(g.nights.map((n) => lastPrice(g.lid + '|' + n, prev)));
-        const myOpen = g.nights.filter((n) => A[cur][me.id + '|' + n] === 'O');
-        const myPrice = mean(myOpen.map((n) => priceAt(cur, me.id + '|' + n)));
-        out.push({ detected: cur, since: prev, listing_id: g.lid, listing: info[g.lid].listing, thumb: info[g.lid].thumb || null, mine: info[g.lid].mine,
-          first_night: g.nights[0], checkout: addDays(g.nights[g.nights.length - 1], 1), nights: g.nights.length,
-          sold_per_night: sold != null ? Math.round(sold) : null, me_open_nights: myOpen.length,
-          me_per_night: myPrice != null ? Math.round(myPrice) : null,
-          me_vs_sold_pct: myPrice != null && sold ? Math.round((myPrice / sold - 1) * 100) : null });
+        const n = g.items.map((h) => h.night), old = mean(g.items.map((h) => h.old)), now = mean(g.items.map((h) => h.now));
+        const myOpen = n.filter((x) => A[cur][me.id + '|' + x] === 'O');
+        const myPrice = mean(myOpen.map((x) => priceAt(cur, me.id + '|' + x)));
+        const ref = g.type === 'booked' ? old : now;
+        out.push({ detected: cur, since: prev, type: g.type, listing_id: g.lid, listing: info[g.lid].listing, thumb: info[g.lid].thumb || null, mine: info[g.lid].mine,
+          first_night: n[0], last_night: n[n.length - 1], checkout: addDays(n[n.length - 1], 1), nights: n.length,
+          old_per_night: old != null ? Math.round(old) : null, new_per_night: now != null ? Math.round(now) : null,
+          change_pct: old && now ? Math.round((now / old - 1) * 100) : null,
+          me_open_nights: myOpen.length, me_per_night: myPrice != null ? Math.round(myPrice) : null,
+          me_vs_pct: myPrice != null && ref ? Math.round((myPrice / ref - 1) * 100) : null });
         g = null;
       };
       for (const h of hits) {
-        if (g && g.lid === h.lid && addDays(g.nights[g.nights.length - 1], 1) === h.night) g.nights.push(h.night);
-        else { flush(); g = { lid: h.lid, nights: [h.night] }; }
+        const joins = g && g.lid === h.lid && g.type === h.type && (h.type !== 'price' || g.dir === h.dir) && addDays(g.items[g.items.length - 1].night, 1) === h.night;
+        if (joins) g.items.push(h); else { flush(); g = { lid: h.lid, type: h.type, dir: h.dir, items: [h] }; }
       }
       flush();
     }
-    return out.sort((a, b) => (a.detected === b.detected ? (a.first_night < b.first_night ? -1 : 1) : a.detected > b.detected ? -1 : 1));
+    return out.sort((a, b) => (a.detected !== b.detected ? (a.detected > b.detected ? -1 : 1) : a.type !== b.type ? ORDER[a.type] - ORDER[b.type] : a.first_night < b.first_night ? -1 : 1));
   }
 });
 
@@ -591,43 +606,64 @@ dash.draw('date-chart', (box) => {
     .on('pointermove', show).on('pointerdown', show).on('pointerleave', () => { hair.style('opacity', 0); untip(box); });
 });
 
-dash.draw('booked-list', (box) => {
+let updFilter = 'all';
+const UPD_LABEL = { all: 'All', booked: 'Booked', reopened: 'Reopened', price: 'Price changes' };
+const updRows = () => { const d = dash.data('updates'); return d.status === 'ok' && d.data ? d.data : null; };
+const renderUpdList = () => document.querySelectorAll('[data-draw="upd-list"]').forEach((b) => drawUpdList(b));
+dash.draw('upd-filter', (box) => {
+  const rows = updRows(); box.replaceChildren(); if (!rows || !rows.length) return;
+  const cnt = { all: rows.length, booked: 0, reopened: 0, price: 0 }; rows.forEach((r) => cnt[r.type]++);
+  for (const k of ['all', 'booked', 'reopened', 'price']) {
+    if (k !== 'all' && !cnt[k]) continue;
+    const b = el('button', null, UPD_LABEL[k] + ' · ' + cnt[k]); b.type = 'button'; b.setAttribute('aria-pressed', String(updFilter === k));
+    b.addEventListener('click', () => { updFilter = k; box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderUpdList(); });
+    box.appendChild(b);
+  }
+});
+const drawUpdList = (box) => {
   setYou();
-  const d = dash.data('booked'); box.replaceChildren();
-  if (d.status === 'error') { box.appendChild(el('div', 'empty', 'New bookings could not be worked out from the data.')); return; }
+  const d = dash.data('updates'); box.replaceChildren();
+  if (d.status === 'error') { box.appendChild(el('div', 'empty', 'Changes could not be worked out from the data.')); return; }
   if (d.status !== 'ok' || !d.data) return;
   const ns = dash.data('nights'); const scrape = ns.status === 'ok' && ns.data && ns.data[0] ? ns.data[0].scrape_date : null;
+  const all = d.data, rows = updFilter === 'all' ? all : all.filter((r) => r.type === updFilter);
+  if (!all.length) { box.appendChild(el('div', 'empty', 'No changes found in the last 7 days of checks' + (scrape ? ' (latest ' + fmtDay(P(scrape)) + ')' : '') + '.')); return; }
   const groups = {};
-  for (const r of d.data) (groups[r.detected] = groups[r.detected] || []).push(r);
-  if (!d.data.length) { box.appendChild(el('div', 'empty', 'No new bookings found in the last 7 days of checks' + (scrape ? ' (latest ' + fmtDay(P(scrape)) + ')' : '') + '.')); return; }
-  if (scrape && !groups[scrape]) box.appendChild(el('div', 'empty', 'No new bookings in the latest check (' + fmtDay(P(scrape)) + '). Earlier ones from the last 7 days are below.'));
+  for (const r of rows) (groups[r.detected] = groups[r.detected] || []).push(r);
+  if (scrape && !all.some((r) => r.detected === scrape)) box.appendChild(el('div', 'empty', 'Nothing changed in the latest check (' + fmtDay(P(scrape)) + '). Earlier changes from the last 7 days are below.'));
+  const range = (r) => (r.type === 'price' ? 'Check-in ' + fmtDay(P(r.first_night)) + (r.nights > 1 ? ' – ' + fmtDay(P(r.last_night)) : '') : fmtDay(P(r.first_night)) + ' – ' + fmtDay(P(r.checkout)) + ' · ' + r.nights + (r.nights === 1 ? ' night' : ' nights'));
   for (const day of Object.keys(groups).sort().reverse()) {
-    const rows = groups[day]; const sec = el('div', 'bgroup');
-    const nightsTot = rows.reduce((s, r) => s + r.nights, 0);
-    sec.appendChild(el('h3', null, 'Found ' + fmtDay(P(day)) + ' · ' + rows.length + (rows.length === 1 ? ' stay, ' : ' stays, ') + nightsTot + (nightsTot === 1 ? ' night' : ' nights') + ' since ' + fmtDay(P(rows[0].since))));
-    const list = el('div', 'bitems');
-    for (const r of rows) {
+    const list = groups[day], sec = el('div', 'bgroup');
+    const c = { booked: 0, reopened: 0, price: 0 }; list.forEach((r) => c[r.type]++);
+    const parts = []; if (c.booked) parts.push(c.booked + ' booked'); if (c.reopened) parts.push(c.reopened + ' reopened'); if (c.price) parts.push(c.price + ' price ' + (c.price === 1 ? 'change' : 'changes'));
+    sec.appendChild(el('h3', null, 'Found ' + fmtDay(P(day)) + ' (since ' + fmtDay(P(list[0].since)) + ') · ' + parts.join(', ')));
+    const wrap = el('div', 'bitems');
+    for (const r of list) {
       const it = el('div', 'bitem' + (r.mine === '1' ? ' me' : ''));
       if (/^(\/_blob\/[0-9a-f]+|thumbs\/\d+\.jpg)$/.test(r.thumb || '')) { const im = el('img', 'thumb'); im.src = r.thumb; im.alt = ''; im.loading = 'lazy'; it.appendChild(im); } else it.appendChild(el('span', 'thumb'));
       const main = el('div', 'bmain');
-      main.append(el('span', 'bhouse', r.mine === '1' ? 'Your house' : r.listing),
-        el('span', 'bdates', fmtDay(P(r.first_night)) + ' – ' + fmtDay(P(r.checkout)) + ' · ' + r.nights + (r.nights === 1 ? ' night' : ' nights')),
-        el('span', 'bsold', r.sold_per_night != null ? 'Last seen at ' + usd(r.sold_per_night) + ' per night' : 'No price seen before it went'));
+      const badge = r.type === 'booked' ? 'Booked' : r.type === 'reopened' ? 'Reopened' : (r.change_pct > 0 ? 'Price up' : 'Price down');
+      const hd = el('span', 'bhouse'); hd.append(el('span', 'ubadge', badge), document.createTextNode(r.mine === '1' ? 'Your house' : r.listing));
+      let detail;
+      if (r.type === 'booked') detail = r.old_per_night != null ? 'Last seen at ' + usd(r.old_per_night) + ' per night' : 'No price seen before it went';
+      else if (r.type === 'reopened') detail = r.new_per_night != null ? 'Open again at ' + usd(r.new_per_night) + ' per night' : 'Open again, no price shown yet';
+      else detail = usd(r.old_per_night) + ' → ' + usd(r.new_per_night) + ' per night (' + signed(r.change_pct) + ')';
+      main.append(hd, el('span', 'bdates', range(r)), el('span', 'bsold', detail));
       it.appendChild(main);
       const you = el('div', 'byou');
-      if (r.mine === '1') you.append(el('span', null, 'Your house got booked'), el('span', 'tag a-keep', 'Booked'));
-      else if (!r.me_open_nights) you.append(el('span', null, 'You: booked for these nights too'), el('span', 'tag a-keep', 'Booked'));
+      if (r.mine === '1') you.append(el('span', null, r.type === 'booked' ? 'Your house got booked' : r.type === 'reopened' ? 'Your nights opened up again' : 'Your own price changed'), el('span', 'tag a-keep', r.type === 'price' ? signed(r.change_pct) : badge));
+      else if (!r.me_open_nights) you.append(el('span', null, 'You: booked for these nights'), el('span', 'tag a-keep', 'Booked'));
       else {
-        const v = r.me_vs_sold_pct;
-        const cls = v == null ? 'a-keep' : v > 3 ? 'a-reduce' : v < -3 ? 'a-increase' : 'a-keep';
-        you.append(el('span', null, 'You: ' + (r.me_per_night != null ? usd(r.me_per_night) + ' per night' : 'open, no price') + (r.me_open_nights < r.nights ? ' (' + r.me_open_nights + ' of ' + r.nights + ' nights open)' : ', still open')),
-          el('span', 'tag ' + cls, v == null ? '' : v === 0 ? 'Same as theirs' : signed(v) + (v > 0 ? ' dearer' : ' cheaper')));
+        const v = r.me_vs_pct, cls = v == null ? 'a-keep' : v > 3 ? 'a-reduce' : v < -3 ? 'a-increase' : 'a-keep';
+        you.append(el('span', null, 'You: ' + (r.me_per_night != null ? usd(r.me_per_night) + ' per night' : 'open, no price') + (r.me_open_nights < r.nights ? ' (' + r.me_open_nights + ' of ' + r.nights + ' open)' : ', open')),
+          el('span', 'tag ' + cls, v == null ? '' : Math.abs(v) <= 3 ? (v === 0 ? 'Same price' : signed(v) + ' · similar') : signed(v) + (v > 0 ? ' dearer' : ' cheaper')));
       }
-      it.appendChild(you); list.appendChild(it);
+      it.appendChild(you); wrap.appendChild(it);
     }
-    sec.appendChild(list); box.appendChild(sec);
+    sec.appendChild(wrap); box.appendChild(sec);
   }
-});
+};
+dash.draw('upd-list', drawUpdList);
 
 dash.draw('booked-chart', (box) => {
   setYou();
